@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'E_Commerce',
     'category',
+    'accounts',
      
 ]
 
@@ -71,6 +72,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'E_Commerce.wsgi.application'
 
+AUTH_USER_MODEL='accounts.Account'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -122,3 +124,5 @@ STATIC_ROOT=BASE_DIR /'static'
 STATICFILES_DIRS=[
     'E_Commerce/static',
 ]
+MEDIA_URL='/media/'
+MEDIA_ROOT=BASE_DIR/'media'
