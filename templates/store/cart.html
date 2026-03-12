@@ -1,0 +1,175 @@
+{% extends 'E_Commerce/home.html' %}
+{% block content %}
+
+<style>
+    .section-content {
+        background: #f5f5f5;
+        padding: 50px 0;
+        font-family: Georgia, serif;
+    }
+
+    .cart-box {
+        background: white;
+        border: 1px solid #e0e0e0;
+        padding: 30px;
+        border-radius: 6px;
+    }
+
+    .cart-title {
+        border-bottom: 2px solid #4bd5f7;
+        display: inline-block;
+        padding-bottom: 8px;
+        margin-bottom: 25px;
+    }
+
+    table {
+        background: white;
+    }
+
+    table th {
+        background: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .product-img {
+        width: 70px;
+        border: 1px solid #ddd;
+        padding: 3px;
+        margin-right: 10px;
+    }
+
+    .qty-btn {
+        border: 1px solid #ccc;
+        background: #f8f9fa;
+        padding: 4px 10px;
+    }
+
+    .remove-btn {
+        background: #c82333;
+        color: white;
+        border: none;
+    }
+
+    .checkout-btn {
+        background: #d4af37;
+        border: none;
+        color: white;
+        padding: 10px 25px;
+        font-weight: 600;
+    }
+
+
+
+    .total-box {
+        text-align: right;
+        font-size: 18px;
+        margin-top: 15px;
+    }
+</style>
+
+<section class="section-content">
+    <div class="container">
+
+        <div class="cart-box">
+
+            <h3 class="cart-title">Your Cart</h3>
+
+            {% if cart_items %}
+
+            <table class="table table-bordered">
+
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in cart_items %}
+
+                    <tr>
+
+                        <td>
+                            <div class="d-flex align-items-center">
+
+                                <a href="{% url 'product_detail' item.product.id %}">
+                                    <img src="{{ item.product.image.url }}" class="product-img">
+                                </a>
+
+                                <a href="{% url 'product_detail' item.product.id %}"
+                                    style="text-decoration:none;color:inherit;">
+                                    <strong>{{ item.product.product_name }}</strong>
+                                    {% if item.variations.all %}
+                                    {% for var in item.variations.all %}
+                                    <br><small class="text-muted">{{ var.variation_category | capfirst }}: {{
+                                        var.variation_value | capfirst }}</small>
+                                    {% endfor %}
+                                    {% endif %}
+                                    {% if item.product.stock <= 0 %} <span class="badge bg-danger ms-2">Out of
+                                        Stock</span>
+                                        <br><small class="text-muted">Will not be charged</small>
+                                        {% endif %}
+                                </a>
+
+                            </div>
+                        </td>
+
+                        <td>₹{{ item.product.price }}</td>
+
+                        <td>
+
+                            <a href="{% url 'decrease_cart' item.id %}" class="qty-btn">−</a>
+
+                            <strong class="mx-2">{{ item.quantity }}</strong>
+
+                            <a href="{% url 'increase_cart' item.id %}" class="qty-btn">+</a>
+
+                        </td>
+
+                        <td>₹{{ item.sub_total }}</td>
+
+                        <td>
+
+                            <a href="{% url 'remove_cart' item.id %}" class="btn btn-sm remove-btn">
+                                Remove
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            <div class="total-box">
+                <strong>Total: ₹{{ total }}</strong>
+            </div>
+
+            <div style="text-align:right;margin-top:20px;">
+
+                <a href="{% url 'checkout' %}" class="checkout-btn">
+                    Proceed to Checkout
+                </a>
+
+            </div>
+
+            {% else %}
+
+            <h5>Your cart is empty</h5>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "auth_base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+    <h3>Add Product</h3>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <input type="text" name="name" class="form-control mb-3" placeholder="Product Name" required>
+
+        <textarea name="description" class="form-control mb-3" placeholder="Description"></textarea>
+
+        <input type="number" name="price" class="form-control mb-3" placeholder="Price" required>
+
+        <input type="number" name="stock" class="form-control mb-3" placeholder="Stock" required>
+
+        <!-- 🔽 EXISTING CATEGORY -->
+        <select name="category" class="form-control mb-3">
+            <option value="">Select Existing Category</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}">{{ cat.category_name }}</option>
+            {% endfor %}
+        </select>
+
+        <p class="text-center"><strong>OR</strong></p>
+
+        <!-- ➕ NEW CATEGORY -->
+        <input type="text" name="new_category" class="form-control mb-3" placeholder="Create New Category">
+
+        <!-- 📷 CATEGORY IMAGE -->
+        <input type="file" name="new_category_image" class="form-control mb-3">
+
+        <input type="file" name="image" class="form-control mb-3">
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label small fw-bold">Available Colors (comma separated)</label>
+                <input type="text" name="colors" class="form-control" placeholder="e.g. Red, Blue, Black">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small fw-bold">Available Sizes (comma separated)</label>
+                <input type="text" name="sizes" class="form-control" placeholder="e.g. S, M, L, XL">
+            </div>
+        </div>
+
+        <button class="btn btn-primary w-100 py-2 fw-bold">Add Product to Store</button>
+
+    </form>
+</div>
+
+{% endblock %}

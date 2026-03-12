@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .checkout-wrapper {
+        background: #f4f6f9;
+        padding: 40px 0;
+    }
+
+    .checkout-box {
+        display: flex;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    .left-panel {
+        width: 35%;
+        background: linear-gradient(135deg, #3b3bb3, #00a7c7);
+        color: white;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .left-panel h2 {
+        font-weight: 700
+    }
+
+    .right-panel {
+        width: 65%;
+        background: white;
+        padding: 40px;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 12px;
+        border: 1px solid #ccc;
+    }
+
+    .place-btn {
+        background: #1f6ed4;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 30px;
+        color: white;
+        font-weight: 600;
+        float: right;
+    }
+
+    .place-btn:hover {
+        background: #155ab3;
+    }
+
+    .address-card {
+        border: 2px solid #eee;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .address-card:hover {
+        border-color: #3b3bb3;
+    }
+
+    .address-card.active {
+        border-color: #3b3bb3;
+        background: #f0f7ff;
+    }
+
+    .section-title {
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+    .payment-card {
+        transition: 0.3s;
+        cursor: pointer;
+        border: 2px solid #eee !important;
+    }
+
+    .payment-card:hover {
+        border-color: #3b3bb3 !important;
+        background: #f8f9ff;
+    }
+
+    .payment-card.active {
+        border-color: #3b3bb3 !important;
+        background: #f0f7ff;
+        box-shadow: 0 5px 15px rgba(59, 59, 179, 0.1);
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+</style>
+
+<div class="checkout-wrapper">
+    <div class="container">
+
+        <div class="checkout-box">
+
+            <!-- LEFT PANEL -->
+
+            <div class="left-panel">
+
+                <h2>Welcome</h2>
+                <p>You are 30 seconds away from completing your order!</p>
+
+                <div class="mt-4">
+                    <p class="mb-1"><small>Total Amount:</small></p>
+                    <h3 class="fw-bold">₹ {% if total %}{{ total }}{% else %}{{ product.price }}{% endif %}</h3>
+                </div>
+
+            </div>
+
+            <!-- RIGHT PANEL -->
+
+            <div class="right-panel">
+                <form method="POST" id="checkoutForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <h4 class="section-title fw-bold">1. Delivery Address</h4>
+
+                    {% if addresses %}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Select saved address</label>
+                        <div class="row">
+                            {% for addr in addresses %}
+                            <div class="col-md-6">
+                                <div class="address-card {% if addr.is_default %}active{% endif %}"
+                                    onclick="selectAddress('{{ addr.id }}',this)">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="fw-bold mb-1">{{ addr.full_name }}</h6>
+                                        {% if addr.is_default %}<span class="badge bg-primary">Default</span>{% endif %}
+                                    </div>
+                                    <p class="small text-muted mb-0">
+                                        {{ addr.house }}, {{ addr.area }}<br>
+                                        {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}
+                                    </p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="address_id" id="selected_address_id"
+                            value="{% for a in addresses %}{% if a.is_default %}{{ a.id }}{% endif %}{% endfor %}">
+                        <div class="text-center mt-2">
+                            <button type="button" class="btn btn-link text-decoration-none"
+                                onclick="toggleNewAddress()">+ Add New Address</button>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- NEW ADDRESS FORM -->
+                    <div id="newAddressForm" style="{% if addresses %}display:none;{% endif %}">
+                        <h6 class="fw-bold mb-3 border-bottom pb-2">New Address Details</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <input type="text" name="full_name" id="reg_full_name" class="form-control"
+                                    placeholder="Full Name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="tel" name="phone" id="reg_phone" class="form-control"
+                                    placeholder="Phone Number" pattern="[0-9]{10}" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <input type="text" name="city" id="reg_city" class="form-control" placeholder="City"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" name="pincode" id="reg_pincode" class="form-control"
+                                    placeholder="Pincode" pattern="[0-9]{6}" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <input type="text" name="house" id="reg_house" class="form-control"
+                                    placeholder="House / Flat No" required>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" name="state" id="reg_state" class="form-control" placeholder="State"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" name="area" id="reg_area" class="form-control"
+                                placeholder="Area / Street" required>
+                        </div>
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" name="set_as_default" id="setAsDefault">
+                            <label class="form-check-label">Save as default address</label>
+                        </div>
+                    </div>
+
+                    <!-- OPTIONAL IMAGE UPLOAD SECTION -->
+                    <div class="mt-4 pt-3 border-top">
+                        <h4 class="section-title fw-bold">2. Upload Design (Optional)</h4>
+                        <div class="mb-3">
+                            <label class="form-label">If you want to print a custom design, upload it here:</label>
+                            <input type="file" name="design" class="form-control">
+                            <small class="text-muted">Max file size: 5MB. Supported formats: JPG, PNG.</small>
+                        </div>
+                    </div>
+
+                    <!-- PAYMENT MODE -->
+                    <div class="mt-5 border-top pt-4">
+                        <h4 class="section-title fw-bold">3. Payment Mode</h4>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="payment-card p-3 border rounded text-center cursor-pointer"
+                                    onclick="selectPayment('cod', this)">
+                                    <i class="fas fa-money-bill-wave fa-2x mb-2 text-primary"></i>
+                                    <h6 class="fw-bold mb-0">Cash on Delivery</h6>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="payment-card p-3 border rounded text-center cursor-pointer"
+                                    onclick="selectPayment('card', this)">
+                                    <i class="fas fa-credit-card fa-2x mb-2 text-primary"></i>
+                                    <h6 class="fw-bold mb-0">Card / UPI</h6>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="payment-card p-3 border rounded text-center cursor-pointer"
+                                    onclick="selectPayment('qr', this)">
+                                    <i class="fas fa-qrcode fa-2x mb-2 text-primary"></i>
+                                    <h6 class="fw-bold mb-0">QR Payment</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="payment_method" id="selected_payment_method" required>
+
+                        <!-- QR Payment Section (Hidden by default) -->
+                        <div id="qr_section" style="display: none;"
+                            class="mt-4 p-4 border rounded bg-light text-center">
+                            <h5 class="fw-bold text-primary mb-3">Scan & Pay</h5>
+                            <img src="/static/images/qr_code.png" alt="QR Code" class="img-fluid mb-3"
+                                style="max-width: 200px; border: 5px solid white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <p class="text-muted small">Scan this QR code with any UPI app and upload the screenshot
+                                below.</p>
+                            <label class="form-label fw-bold mt-2">Upload Payment Screenshot</label>
+                            <input type="file" name="payment_proof" id="payment_proof" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="mt-5 border-top pt-4 text-end">
+                        <button type="submit" class="place-btn fs-5">
+                            Confirm & Place Order
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function selectAddress(id, element) {
+
+        document.getElementById("selected_address_id").value = id
+
+        document.querySelectorAll(".address-card").forEach(el => {
+            el.classList.remove("active")
+        })
+
+        element.classList.add("active")
+
+        document.getElementById("newAddressForm").style.display = "none"
+
+        setRequired(false)
+
+    }
+
+    function toggleNewAddress() {
+
+        document.getElementById("newAddressForm").style.display = "block"
+
+        document.getElementById("selected_address_id").value = ""
+
+        document.querySelectorAll(".address-card").forEach(el => {
+            el.classList.remove("active")
+        })
+
+        setRequired(true)
+
+    }
+
+    function setRequired(value) {
+
+        let fields = [
+            "reg_full_name",
+            "reg_phone",
+            "reg_city",
+            "reg_pincode",
+            "reg_house",
+            "reg_state",
+            "reg_area"
+        ]
+
+        fields.forEach(id => {
+            let el = document.getElementById(id)
+            if (el) el.required = value
+        })
+
+    }
+
+    function selectPayment(method, element) {
+
+        document.getElementById("selected_payment_method").value = method
+
+        document.querySelectorAll(".payment-card").forEach(el => {
+            el.classList.remove("active")
+        })
+
+        element.classList.add("active")
+
+        if (method === "qr") {
+            document.getElementById("qr_section").style.display = "block"
+        } else {
+            document.getElementById("qr_section").style.display = "none"
+        }
+
+    }
+
+    window.onload = function () {
+
+        const selected = document.getElementById("selected_address_id")
+
+        if (selected && selected.value !== "") {
+            setRequired(false)
+        } else {
+            setRequired(true)
+        }
+
+    }
+
+</script>
+
+{% endblock %}

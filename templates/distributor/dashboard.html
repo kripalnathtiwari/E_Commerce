@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3 class="mb-4">Distributor Dashboard</h3>
+
+    <div class="row">
+
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm">
+                <h5>Manage Products</h5>
+                <div class="d-grid gap-2 mt-2">
+                    <a href="{% url 'add_product' %}" class="btn btn-primary">
+                        Add Product
+                    </a>
+                    <a href="{% url 'distributor_products' %}" class="btn btn-info text-white">📦 My Products</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm">
+                <h5>View Orders</h5>
+                <a href="{% url 'distributor_orders' %}" class="btn btn-success mt-2">
+                    View Orders
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

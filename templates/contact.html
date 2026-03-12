@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container mt-5" style="max-width:700px;">
+
+```
+<!-- Classic Header -->
+<div class="text-center mb-5">
+    <h2 class="mb-3" style="font-family: 'Times New Roman', serif; border-bottom: 2px solid #d4af37; display: inline-block; padding-bottom: 10px;">
+        Contact Us
+    </h2>
+    <p class="mt-3" style="font-style: italic; color: #6c757d;">We'd love to hear from you</p>
+</div>
+
+<!-- Contact Card -->
+<div class="card p-4 mb-5 shadow-sm" style="background-color:#f8f9fa;border:1px solid #dee2e6;border-left:4px solid #d4af37;">
+    
+    <div class="d-flex align-items-center mb-3">
+        <i class="fas fa-envelope-open-text me-3" style="font-size:1.5rem;color:#d4af37;"></i>
+        <h5 style="font-family:'Georgia', serif;margin:0;">Our Contact Details</h5>
+    </div>
+
+    <div class="ms-4">
+        <p><i class="fas fa-envelope me-2"></i><strong>Email:</strong> saurabhtiwari08071999@gmail.com</p>
+        <p><i class="fas fa-phone me-2"></i><strong>Phone:</strong> +91 833445782</p>
+        <p><i class="fas fa-map-marker-alt me-2"></i><strong>Address:</strong> Varanasi, India</p>
+    </div>
+
+</div>
+
+<!-- Contact Form -->
+<form method="POST" class="border p-4 shadow-sm" style="background-color:#fff;">
+    
+    {% csrf_token %}
+
+    <h5 class="mb-4" style="font-family:'Georgia', serif;border-bottom:1px solid #eaeaea;padding-bottom:10px;">
+        Send Us a Message
+    </h5>
+
+    <div class="mb-3">
+        <label class="form-label">
+            <i class="fas fa-user me-2"></i>Your Name
+        </label>
+        <input type="text" name="name" class="form-control" placeholder="John Doe" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">
+            <i class="fas fa-envelope me-2"></i>Your Email
+        </label>
+        <input type="email" name="email" class="form-control" placeholder="john@example.com" required>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label">
+            <i class="fas fa-comment me-2"></i>Your Message
+        </label>
+        <textarea name="message" class="form-control" rows="5" placeholder="Type your message here..." required></textarea>
+    </div>
+
+    <button class="btn w-100" style="background-color:#d4af37;color:#fff;font-weight:500;">
+        <i class="fas fa-paper-plane me-2"></i>Send Message
+    </button>
+
+</form>
+```
+
+</div>
+
+<!-- Font Awesome Icons -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+
+body{
+    font-family:'Georgia', serif;
+    background-color:#f5f5f5;
+}
+
+.card,.border{
+    border-radius:4px;
+}
+
+.form-control:focus{
+    border-color:#d4af37;
+    box-shadow:0 0 0 0.25rem rgba(212,175,55,0.25);
+}
+
+</style>
+
+{% endblock %}

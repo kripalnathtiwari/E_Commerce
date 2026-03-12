@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="section-content padding-y bg">
+    <div class="container">
+
+        <!-- ============================ COMPONENT 1 ================================= -->
+        <div class="card">
+            <div class="row no-gutters">
+                <aside class="col-md-6">
+                    <article class="gallery-wrap">
+                        <div class="img-big-wrap">
+                            <center><img src="{{ product.image.url }}" style="max-height: 500px; max-width: 100%;">
+                            </center>
+                        </div> <!-- img-big-wrap.// -->
+
+                    </article> <!-- gallery-wrap .end// -->
+                </aside>
+                <main class="col-md-6 border-left">
+                    <article class="content-body">
+
+                        <h2 class="title">{{ product.product_name }}</h2>
+
+                        <div class="mb-3">
+                            <var class="price h4">₹ {{ product.price }}</var>
+                        </div>
+
+                        <p>{{ product.description }}</p>
+
+
+                        <hr>
+                        <form action="{% url 'add_to_cart' product.id %}" method="POST" id="variation-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="is_product_detail" value="true">
+
+                            <style>
+                                .variation-selector {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 10px;
+                                    margin-top: 10px;
+                                    margin-bottom: 20px;
+                                }
+
+                                .variation-item {
+                                    position: relative;
+                                }
+
+                                .variation-item input {
+                                    position: absolute;
+                                    opacity: 0;
+                                    cursor: pointer;
+                                    height: 0;
+                                    width: 0;
+                                }
+
+                                .variation-label {
+                                    border: 1px solid #ddd;
+                                    padding: 8px 16px;
+                                    border-radius: 4px;
+                                    cursor: pointer;
+                                    transition: 0.3s;
+                                    font-weight: 500;
+                                    font-size: 14px;
+                                    display: inline-block;
+                                    background: white;
+                                }
+
+                                .variation-item input:checked+.variation-label {
+                                    border-color: #2874f0;
+                                    color: #2874f0;
+                                    background: #f0f5ff;
+                                    box-shadow: 0 0 0 1px #2874f0;
+                                }
+
+                                .variation-item:hover .variation-label {
+                                    border-color: #2874f0;
+                                }
+
+                                .section-header-row {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                }
+
+                                .size-chart-link {
+                                    color: #2874f0;
+                                    font-weight: 600;
+                                    font-size: 13px;
+                                    text-decoration: none;
+                                }
+
+                                .size-chart-link:hover {
+                                    text-decoration: underline;
+                                }
+
+                                .selected-label-text {
+                                    font-size: 14px;
+                                    color: #878787;
+                                    margin-bottom: 8px;
+                                }
+
+                                .selected-value-text {
+                                    color: #212121;
+                                    font-weight: 600;
+                                }
+                            </style>
+
+                            {% if product.colors %}
+                            <div class="mb-4">
+                                <p class="selected-label-text">Select Color: <span class="selected-value-text"
+                                        id="color-name">Choose one</span></p>
+                                <div class="variation-selector">
+                                    {% for i in product.colors %}
+                                    <div class="variation-item">
+                                        <input type="radio" name="color" value="{{ i.variation_value | lower }}"
+                                            id="color-{{ forloop.counter }}" required
+                                            onchange="document.getElementById('color-name').innerText = '{{ i.variation_value | capfirst }}'">
+                                        <label class="variation-label" for="color-{{ forloop.counter }}">
+                                            {{ i.variation_value | capfirst }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if product.sizes %}
+                            <div class="mb-4">
+                                <div class="section-header-row mb-2">
+                                    <p class="selected-label-text mb-0">Select Size</p>
+                                    <a href="#" class="size-chart-link"><i class="fas fa-ruler-combined"></i> Size
+                                        Chart</a>
+                                </div>
+                                <div class="variation-selector">
+                                    {% for i in product.sizes %}
+                                    <div class="variation-item">
+                                        <input type="radio" name="size" value="{{ i.variation_value | lower }}"
+                                            id="size-{{ forloop.counter }}" required>
+                                        <label class="variation-label" for="size-{{ forloop.counter }}">
+                                            {{ i.variation_value | capfirst }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <p class="mb-3 text-muted">
+                                {% if product.stock > 0 %}
+                                {% if product.stock < 5 %} <span class="text-warning">Only {{ product.stock }}
+                                    left!</span>
+                                    {% else %}
+                                    <span class="text-success">In Stock</span>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="text-danger">Out of Stock</span>
+                                    {% endif %}
+                            </p>
+                            <hr>
+                            {% if product.stock > 0 %}
+                            <button type="submit" class="btn  btn-warning"> <span class="text">Add to Cart</span> <i
+                                    class="fas fa-shopping-cart"></i> </button>
+                            <button type="submit" name="buy_now" value="true" class="btn  btn-primary"> <span
+                                    class="text">Buy Now</span> <i class="fas fa-money-bill-alt"></i> </button>
+                            {% else %}
+                            <h5 class="text-danger">Out of Stock</h5>
+                            {% endif %}
+                        </form>
+                    </article> <!-- product-info-aside .// -->
+                </main> <!-- col.// -->
+            </div> <!-- row.// -->
+        </div> <!-- card.// -->
+        <!-- ============================ COMPONENT 1 END .// ================================= -->
+
+        <br>
+
+        <div class="row">
+            <div class="col-md-9">
+
+                <header class="section-heading">
+                    <h3>Customer Reviews </h3>
+
+                </header>
+
+                <article class="box mb-3">
+                    <div class="icontext w-100">
+                        <img src="{% static 'images/avatars/avatar1.jpg' %}" class="img-xs icon rounded-circle">
+                        <div class="text">
+                            <span class="date text-muted float-md-right">24.04.2020 </span>
+                            <h6 class="mb-1">Aman Jha </h6>
+
+                        </div>
+                    </div> <!-- icontext.// -->
+                    <div class="mt-3">
+                        <p>
+                            Dummy comment value for now.
+                        </p>
+                    </div>
+                </article>
+
+
+
+            </div> <!-- col.// -->
+        </div> <!-- row.// -->
+
+        <br>
+        {% if related_products %}
+        <header class="section-heading-custom mt-5">
+            <h3 class="mb-4 text-center">You May Also Like</h3>
+        </header>
+
+        <div class="row">
+            {% for rel_product in related_products %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card card-product-grid shadow-sm h-100 border-0">
+                    <a href="{% url 'product_detail' rel_product.id %}" class="img-wrap">
+                        {% if rel_product.image %}
+                        <img src="{{ rel_product.image.url }}" class="card-img-top rounded"
+                            style="height: 200px; object-fit: cover; transition: 0.3s; transform-origin: center;">
+                        {% endif %}
+                    </a>
+                    <div class="card-body text-center p-3 d-flex flex-column">
+                        <a href="{% url 'product_detail' rel_product.id %}"
+                            class="title text-dark fw-bold text-decoration-none mb-2">{{ rel_product.product_name }}</a>
+                        <div class="price h6 text-primary mt-auto">₹ {{ rel_product.price }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </div> <!-- container .//  -->
+</section>
+
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+    <h3>My Orders</h3>
+
+    {% if orders %}
+
+    {% for data in orders %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <strong>Order #{{ data.order.id }}</strong>
+            <span class="float-right">
+                {{ data.order.created_at|date:"d M Y" }}
+            </span>
+        </div>
+
+        <div class="card-body">
+            <table class="table">
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Product Image</th>
+                </tr>
+
+                {% for item in data.items %}
+                <tr>
+                    <td>
+                        <a href="{% url 'product_detail' item.product.id %}"
+                            style="text-decoration:none; color:inherit;">
+                            {{ item.product.product_name }}
+                        </a>
+                    </td>
+
+                    <td>{{ item.quantity }}</td>
+
+                    <td>₹{{ item.price }}</td>
+
+                    <td>
+                        <a href="{% url 'product_detail' item.product.id %}">
+                            {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" width="70" height="70"
+                                style="object-fit:cover; border-radius:6px;">
+                            {% else %}
+                            No Image
+                            {% endif %}
+                        </a>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </table>
+
+            <h5 class="text-right">Total: ₹{{ data.order.total }}</h5>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% else %}
+    <p>You have no orders yet.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

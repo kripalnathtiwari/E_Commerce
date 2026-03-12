@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h3>Distributor Products</h3>
+
+    <div class="row">
+
+        {% for product in products %}
+        <div class="col-md-3 mb-4">
+
+            <div class="card shadow-sm" style="height: 100%; display: flex; flex-direction: column;">
+
+                <!-- PRODUCT IMAGE -->
+                {% if product.image %}
+                <a href="{% url 'product_detail' product.id %}">
+                    <img src="{{ product.image.url }}" style="height:250px; width:100%; object-fit:cover;">
+                </a>
+                {% endif %}
+
+                <div class="p-3" style="display:flex; flex-direction:column; flex-grow:1;">
+
+                    <a href="{% url 'product_detail' product.id %}" style="text-decoration: none; color: inherit;">
+                        <h5>{{ product.product_name }}</h5>
+                    </a>
+
+                    <p style="flex-grow:1;">{{ product.description }}</p>
+
+                    <p><strong>₹ {{ product.price }}</strong></p>
+
+                    <!-- STOCK STATUS -->
+                    {% if product.is_available and product.stock > 0 %}
+                        <p class="text-success">
+                            <strong>In Stock:</strong> {{ product.stock }}
+                        </p>
+                    {% elif product.stock == 0 %}
+                        <p class="text-danger">
+                            <strong>Out of Stock</strong>
+                        </p>
+                    {% else %}
+                        <p class="text-warning">
+                            <strong>Currently Unavailable</strong>
+                        </p>
+                    {% endif %}
+
+                    <!-- BUTTONS -->
+                    <div class="mt-auto">
+
+                        {% if product.is_available and product.stock > 0 %}
+                            <!-- ADD TO CART -->
+                            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-warning w-100 mb-2">
+                                Add to Cart
+                            </a>
+
+                            <!-- BUY -->
+                            <a href="{% url 'checkout' product.id %}" class="btn btn-primary w-100 mb-2">
+                                Buy
+                            </a>
+                        {% else %}
+                            <button class="btn btn-secondary w-100 mb-2" disabled>
+                                Not Available
+                            </button>
+                        {% endif %}
+
+                        <!-- DELETE BUTTON (ONLY FOR OWNER DISTRIBUTOR) -->
+                        {% if request.user.is_authenticated and product.distributor and product.distributor.user == request.user %}
+                        <form method="POST" action="{% url 'delete_product' product.id %}">
+                            {% csrf_token %}
+                            <button class="btn btn-danger w-100" onclick="return confirm('Delete this product?')">
+                                Delete Product
+                            </button>
+                        </form>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+        <div class="col-12 text-center mt-4">
+            <p>No distributor products found.</p>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

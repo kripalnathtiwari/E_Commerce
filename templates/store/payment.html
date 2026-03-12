@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .pay-box {
+        max-width: 600px;
+        margin: auto;
+    }
+
+    .pay-btn {
+        background: #000;
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        width: 100%;
+    }
+
+    .pay-btn img {
+        height: 26px;
+        margin-right: 10px;
+    }
+
+    .or-line {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 25px 0;
+    }
+
+    .or-line::before,
+    .or-line::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .or-line:not(:empty)::before {
+        margin-right: .5em;
+    }
+
+    .or-line:not(:empty)::after {
+        margin-left: .5em;
+    }
+
+    .card-input {
+        border-radius: 8px;
+        padding: 14px;
+        border: 1px solid #ddd;
+        margin-bottom: 15px;
+    }
+
+    .pay-blue {
+        background: linear-gradient(90deg, #5b8bdc, #3d73c8);
+        border: none;
+        padding: 14px;
+        color: white;
+        font-weight: 600;
+        border-radius: 10px;
+        width: 100%;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="pay-box">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0">Payment</h3>
+            <h4 class="text-primary fw-bold mb-0">Total: ₹ {{ total }}</h4>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- ================= QUICK PAY ================= -->
+
+            <button type="button" class="pay-btn" onclick="payPhonePe()">
+                Pay with PhonePe
+            </button>
+
+            <button type="button" class="pay-btn" onclick="payGpay()">
+                💳 Pay with Google Pay
+            </button>
+
+            <div class="or-line">OR</div>
+
+            <!-- ================= CARD PAYMENT ================= -->
+
+            <h5 class="fw-bold mb-3">PAYMENT DETAILS</h5>
+
+            <input type="text" class="card-input" placeholder="Card number">
+
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="text" class="card-input" placeholder="MM / YY">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="card-input" placeholder="CVV">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="card-input" placeholder="Postal">
+                </div>
+            </div>
+
+            <button type="button" class="pay-blue mb-4">
+                Pay with Card
+            </button>
+
+            <!-- ================= QR OPTION ================= -->
+
+            <div class="or-line">OR</div>
+
+            <h6 class="fw-bold mb-2">QR Payment</h6>
+            <p class="text-muted">Scan QR and upload screenshot</p>
+
+            <input type="file" name="payment_proof" class="form-control mb-4">
+
+            <!-- ================= COD OPTION ================= -->
+
+            <div class="form-check mb-4">
+                <input class="form-check-input" type="radio" name="payment_method" value="cod" required>
+                <label class="form-check-label fw-semibold">
+                    Cash on Delivery
+                </label>
+            </div>
+
+            <button class="btn btn-success btn-lg w-100">
+                Place Order
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+<script>
+    function payGpay() {
+        window.location.href = "upi:830345782-4@ibl";
+    }
+
+    function payPhonePe() {
+        window.location.href = "upi://pay?pa=yourupi@bank&pn=YourStore&am=1&cu=INR";
+    }
+</script>
+
+{% endblock %}
