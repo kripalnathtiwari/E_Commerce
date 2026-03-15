@@ -261,8 +261,15 @@
                         <div id="qr_section" style="display: none;"
                             class="mt-4 p-4 border rounded bg-light text-center">
                             <h5 class="fw-bold text-primary mb-3">Scan & Pay</h5>
-                            <img src="{% static 'images/qr_code.png' %}" alt="QR Code" class="img-fluid mb-3"
-                                style="max-width: 200px; border: 5px solid white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            
+                            <!-- Hidden original image to act as source for jsQR -->
+                            <img id="raw_qr" src="{% static 'images/qr_code.png' %}" style="display: none;" crossorigin="anonymous">
+                            
+                            <div id="dynamic_qr_container" class="d-flex justify-content-center mb-3">
+                                <!-- Fallback image if JS fails -->
+                                <img src="{% static 'images/qr_code.png' %}" alt="QR Code" class="img-fluid"
+                                style="max-width: 200px; border: 5px solid white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" id="fallback_qr">
+                            </div>
                             <p class="text-muted small">Scan this QR code with any UPI app and upload the screenshot
                                 below.</p>
                             <label class="form-label fw-bold mt-2">Upload Payment Screenshot</label>
@@ -374,6 +381,71 @@
         }
     }
 
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+window.addEventListener('load', function() {
+    var rawQrImage = document.getElementById('raw_qr');
+    if(!rawQrImage) return;
+    
+    function processQR() {
+        try {
+            var canvas = document.createElement('canvas');
+            var context = canvas.getContext('2d');
+            canvas.width = rawQrImage.width || rawQrImage.naturalWidth;
+            canvas.height = rawQrImage.height || rawQrImage.naturalHeight;
+            context.drawImage(rawQrImage, 0, 0, canvas.width, canvas.height);
+            
+            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            var code = jsQR(imageData.data, imageData.width, imageData.height);
+            
+            if (code && code.data && code.data.toLowerCase().startsWith("upi://pay")) {
+                var amount = "{% if total %}{{ total }}{% else %}{{ product.price }}{% endif %}";
+                var newUrl = code.data;
+                
+                if (newUrl.indexOf("&am=") === -1 && newUrl.indexOf("?am=") === -1) {
+                    newUrl = newUrl + (newUrl.indexOf("?") > -1 ? "&" : "?") + "am=" + amount;
+                } else {
+                    newUrl = newUrl.replace(/([?&])am=([^&]*)/, "$1am=" + amount);
+                }
+                
+                var container = document.getElementById('dynamic_qr_container');
+                container.innerHTML = "";
+                
+                var qrcode = new QRCode(container, {
+                    text: newUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+                
+                setTimeout(() => {
+                    let newImg = container.querySelector("img");
+                    let newCanvas = container.querySelector("canvas");
+                    let el = newImg || newCanvas;
+                    if(el){
+                        el.style.border = "5px solid white";
+                        el.style.borderRadius = "10px";
+                        el.style.boxShadow = "0 5px 15px rgba(0,0,0,0.1)";
+                        el.style.margin = "0 auto";
+                        el.style.display = "block";
+                    }
+                }, 50);
+            }
+        } catch(e) {
+            console.error("QR Code modification error:", e);
+        }
+    }
+
+    rawQrImage.onload = processQR;
+    if (rawQrImage.complete && rawQrImage.naturalWidth > 0) {
+        processQR();
+    }
+});
 </script>
 
 {% endblock %}

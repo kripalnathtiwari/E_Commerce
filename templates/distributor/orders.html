@@ -1,396 +1,286 @@
 {% extends "base.html" %}
 {% block content %}
 
+<style>
+
+:root{
+    --brand-blue:#3b6edc;
+}
+
+/* Distributor badge */
+.distributor-badge{
+    background:var(--brand-blue);
+    color:white;
+    padding:10px 16px;
+    font-size:18px;
+}
+
+/* buttons */
+.btn-brand{
+    border:1px solid var(--brand-blue);
+    color:var(--brand-blue);
+}
+
+.btn-brand:hover{
+    background:var(--brand-blue);
+    color:white;
+}
+
+/* blue badge */
+.badge-brand{
+    background:var(--brand-blue);
+    color:white;
+}
+
+/* links */
+.link-brand{
+    color:var(--brand-blue);
+    text-decoration:none;
+    font-weight:500;
+}
+
+.link-brand:hover{
+    text-decoration:underline;
+}
+
+/* design badge */
+.design-badge{
+    background:var(--brand-blue);
+    color:white;
+}
+
+</style>
+
 <div class="container mt-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Distributor Control Panel</h2>
-        <span class="badge bg-primary fs-6">
-            Distributor: {{ request.user.first_name }}
-        </span>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Distributor Control Panel</h2>
+
+    <span class="badge distributor-badge">
+        Distributor: {{ request.user.first_name }}
+    </span>
+</div>
+
+
+<!-- ================= CUSTOM / PRINT ORDERS ================= -->
+
+<div class="card shadow-sm">
+
+    <div class="card-header bg-secondary text-white">
+        <h4 class="mb-0">🎨 Custom / Print Orders</h4>
     </div>
 
-    <!-- ================= STANDARD ORDERS ================= -->
+    <div class="card-body">
 
-    <div class="card shadow-sm mb-5">
-        <div class="card-header bg-dark text-white">
-            <h4 class="mb-0">📦 Standard Orders</h4>
-        </div>
+        {% if print_orders %}
 
-        <div class="card-body">
+        {% regroup print_orders by order_date as print_orders_grouped %}
 
-            {% if orders %}
+        {% for date_group in print_orders_grouped %}
 
-            {% regroup orders by order_date as orders_grouped %}
+        <div class="mb-4">
 
-            {% for date_group in orders_grouped %}
+            <div class="bg-light p-2 mb-2 border-start border-secondary border-4">
 
-            <div class="mb-4">
-
-                <div class="bg-light p-2 mb-2 border-start border-primary border-4">
-                    <h5 class="mb-0 text-primary fw-bold">
-                        {{ date_group.grouper|date:"d M, Y" }}
-                    </h5>
-                </div>
-
-                <div class="table-responsive">
-
-                    <table class="table table-hover align-middle">
-
-                        <thead class="table-light">
-                            <tr>
-                                <th>Order ID</th>
-                                <th>User</th>
-                                <th>Product Details</th>
-                                <th>Grand Total</th>
-                                <th>Payment Status</th>
-                                <th>Delivery Status</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            {% for order in date_group.list %}
-
-                            <tr>
-
-                                <td>
-                                    <strong>#{{ order.id }}</strong>
-                                </td>
-
-                                <td>
-                                    <div>
-                                        {{ order.user.first_name }} {{ order.user.last_name }}
-                                    </div>
-
-                                    <small class="text-muted">
-                                        {{ order.address }}
-                                    </small>
-                                </td>
-
-                                <td>
-
-                                    {% for item in order.items.all %}
-
-                                    <div class="d-flex align-items-center mb-2">
-
-                                        {% if item.product.image %}
-
-                                        <a href="{% url 'product_detail' item.product.id %}">
-
-                                            <img src="{{ item.product.image.url }}"
-                                                style="width:50px;height:50px;object-fit:cover" class="rounded me-2">
-
-                                        </a>
-
-                                        {% endif %}
-
-                                        <div>
-                                            <div class="fw-bold">
-                                                {{ item.product.product_name }}
-                                            </div>
-
-                                            {% for var in item.variations.all %}
-                                            <small class="text-muted d-block">
-                                                {{ var.variation_category | capfirst }}: {{ var.variation_value }}
-                                            </small>
-                                            {% endfor %}
-
-                                            <small class="d-block">
-                                                Qty: {{ item.quantity }} | ₹{{ item.price }} each
-                                            </small>
-                                            <small class="fw-bold">
-                                                Subtotal: ₹{% widthratio item.price 1 item.quantity %}
-                                            </small>
-                                        </div>
-
-                                    </div>
-
-                                    {% endfor %}
-
-                                </td>
-
-                                <td>
-                                    ₹{{ order.total_price }}
-                                </td>
-
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="badge 
-                                            {% if order.payment_status == 'paid' or order.payment_status == 'cod_confirmed' %}bg-success
-                                            {% elif order.payment_status == 'failed' %}bg-danger
-                                            {% else %}bg-warning text-dark{% endif %}">
-                                            {{ order.get_payment_status_display }}
-                                        </span>
-                                        <form method="POST" action="{% url 'update_payment_status' order.id %}" class="m-0 d-flex gap-1 align-items-center">
-                                            {% csrf_token %}
-                                            <select name="payment_status" class="form-select shadow-none border-secondary" style="font-size: 11px; padding: 2px 20px 2px 6px; width: auto; height: 26px; min-height: 26px;">
-                                                <option value="pending" {% if order.payment_status == 'pending' %}selected{% endif %}>Pending</option>
-                                                <option value="paid" {% if order.payment_status == 'paid' %}selected{% endif %}>Paid</option>
-                                                <option value="cod_confirmed" {% if order.payment_status == 'cod_confirmed' %}selected{% endif %}>COD</option>
-                                                <option value="verification_pending" {% if order.payment_status == 'verification_pending' %}selected{% endif %}>Verify</option>
-                                            </select>
-                                            <button class="btn btn-outline-primary" style="font-size: 11px; padding: 0 8px; height: 26px;">Update</button>
-                                        </form>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="badge
-                                        {% if order.delivery_status == 'delivered' %}
-                                            bg-success
-                                        {% elif order.delivery_status == 'pending' %}
-                                            bg-warning text-dark
-                                        {% else %}
-                                            bg-info text-dark
-                                        {% endif %}">
-                                            {{ order.get_delivery_status_display }}
-                                        </span>
-                                        <form method="POST" action="{% url 'update_status' order.id %}" class="m-0 d-flex gap-1 align-items-center">
-                                            {% csrf_token %}
-                                            <select name="status" class="form-select shadow-none border-secondary" style="font-size: 11px; padding: 2px 20px 2px 6px; width: auto; height: 26px; min-height: 26px;">
-                                                <option value="pending" {% if order.delivery_status == "pending" %} selected {% endif %}>Pending</option>
-                                                <option value="confirmed" {% if order.delivery_status == "confirmed" %} selected {% endif %}>Confirmed</option>
-                                                <option value="shipped" {% if order.delivery_status == "shipped" %} selected {% endif %}>Shipped</option>
-                                                <option value="out_for_delivery" {% if order.delivery_status == "out_for_delivery" %} selected {% endif %}>Out Delivery</option>
-                                                <option value="delivered" {% if order.delivery_status == "delivered" %} selected {% endif %}>Delivered</option>
-                                            </select>
-                                            <button class="btn btn-outline-success" style="font-size: 11px; padding: 0 8px; height: 26px;">Update</button>
-                                        </form>
-                                    </div>
-                                </td>
-
-                            </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+                <h5 class="mb-0 text-secondary fw-bold">
+                    {{ date_group.grouper|date:"d M, Y" }}
+                </h5>
 
             </div>
 
-            {% endfor %}
+            <div class="table-responsive">
 
-            {% else %}
+                <table class="table table-hover align-middle">
 
-            <div class="text-center py-4 text-muted">
-                No standard orders received yet.
-            </div>
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Product & Design</th>
+                            <th>Amount</th>
+                            <th>Payment Status</th>
+                            <th>Delivery Status</th>
+                        </tr>
+                    </thead>
 
-            {% endif %}
+                    <tbody>
 
-        </div>
+                        {% for order in date_group.list %}
 
-    </div>
+                        <tr>
 
+                            <td>#{{ order.id }}</td>
 
-    <!-- ================= CUSTOM / PRINT ORDERS ================= -->
+                            <td>
 
-    <div class="card shadow-sm">
+                                <div>
+                                    {{ order.user.first_name }} {{ order.user.last_name }}
+                                </div>
 
-        <div class="card-header bg-secondary text-white">
-            <h4 class="mb-0">🎨 Custom / Print Orders</h4>
-        </div>
+                                <small class="text-muted">
 
-        <div class="card-body">
+                                    {{ order.address.house }},
+                                    {{ order.address.area }},
+                                    {{ order.address.city }},
+                                    {{ order.address.state }} -
+                                    {{ order.address.pincode }}
 
-            {% if print_orders %}
+                                    <br>
 
-            {% regroup print_orders by order_date as print_orders_grouped %}
+                                    Ph: {{ order.address.phone }}
 
-            {% for date_group in print_orders_grouped %}
+                                </small>
 
-            <div class="mb-4">
+                            </td>
 
-                <div class="bg-light p-2 mb-2 border-start border-secondary border-4">
+                            <td>
 
-                    <h5 class="mb-0 text-secondary fw-bold">
-                        {{ date_group.grouper|date:"d M, Y" }}
-                    </h5>
+                                <div class="d-flex align-items-center">
 
-                </div>
+                                    {% if order.product.image %}
 
-                <div class="table-responsive">
+                                    <a href="{% url 'product_detail' order.product.id %}">
 
-                    <table class="table table-hover align-middle">
+                                        <img src="{{ order.product.image.url }}"
+                                            style="width:50px;height:50px;object-fit:cover"
+                                            class="rounded me-2 shadow-sm">
 
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>User</th>
-                                <th>Product & Design</th>
-                                <th>Amount</th>
-                                <th>Payment Status</th>
-                                <th>Delivery Status</th>
-                            </tr>
-                        </thead>
+                                    </a>
 
-                        <tbody>
-
-                            {% for order in date_group.list %}
-
-                            <tr>
-
-                                <td>#{{ order.id }}</td>
-
-                                <td>
-
-                                    <div>
-                                        {{ order.user.first_name }} {{ order.user.last_name }}
-                                    </div>
-
-                                    <small class="text-muted">
-
-                                        {{ order.address.house }},
-                                        {{ order.address.area }},
-                                        {{ order.address.city }},
-                                        {{ order.address.state }} -
-                                        {{ order.address.pincode }}
-
-                                        <br>
-
-                                        Ph: {{ order.address.phone }}
-
-                                    </small>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="d-flex align-items-center">
-
-                                        {% if order.product.image %}
-
-                                        <a href="{% url 'product_detail' order.product.id %}">
-
-                                            <img src="{{ order.product.image.url }}"
-                                                style="width:50px;height:50px;object-fit:cover"
-                                                class="rounded me-2 shadow-sm">
-
-                                        </a>
-
-                                        {% endif %}
-
-                                        <div>
-
-                                            <div class="fw-bold">
-                                                {{ order.product.product_name }}
-                                            </div>
-
-                                            {% for var in order.variations.all %}
-                                            <small class="text-muted d-block">
-                                                {{ var.variation_category | capfirst }}: {{ var.variation_value }}
-                                            </small>
-                                            {% endfor %}
-
-                                            {% if order.design %}
-
-                                            <a href="{{ order.design.image.url }}" target="_blank"
-                                                class="badge bg-info text-decoration-none">
-
-                                                View Design
-
-                                            </a>
-
-                                            {% else %}
-
-                                            <span class="badge bg-light text-dark border">
-                                                No Custom Design
-                                            </span>
-
-                                            {% endif %}
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-                                    <div class="fw-bold">₹{{ order.total_price }}</div>
-                                    <small class="text-muted">Qty: {{ order.quantity }}</small>
-                                </td>
-
-                                <td>
-                                    <div class="small fw-bold mb-1">{{ order.get_payment_method_display }}</div>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="badge 
-                                            {% if order.payment_status == 'paid' or order.payment_status == 'cod_confirmed' %}bg-success
-                                            {% elif order.payment_status == 'verification_pending' %}bg-warning text-dark
-                                            {% else %}bg-danger{% endif %}">
-                                            {{ order.get_payment_status_display }}
-                                        </span>
-                                        <form method="POST" action="{% url 'update_payment_status' order.id %}" class="m-0 d-flex gap-1 align-items-center text-start">
-                                            {% csrf_token %}
-                                            <select name="payment_status" class="form-select shadow-none border-secondary" style="font-size: 11px; padding: 2px 20px 2px 6px; width: auto; height: 26px; min-height: 26px;">
-                                                <option value="pending" {% if order.payment_status == 'pending' %}selected{% endif %}>Pending</option>
-                                                <option value="paid" {% if order.payment_status == 'paid' %}selected{% endif %}>Paid</option>
-                                                <option value="cod_confirmed" {% if order.payment_status == 'cod_confirmed' %}selected{% endif %}>COD</option>
-                                                <option value="verification_pending" {% if order.payment_status == 'verification_pending' %}selected{% endif %}>Verify</option>
-                                            </select>
-                                            <button class="btn btn-outline-primary" style="font-size: 11px; padding: 0 8px; height: 26px;">Update</button>
-                                        </form>
-                                    </div>
-                                    {% if order.payment_proof %}
-                                    <div class="mt-1">
-                                        <a href="{{ order.payment_proof.url }}" target="_blank" class="btn btn-xs btn-link p-0 text-decoration-none" style="font-size: 10px;">View Proof</a>
-                                    </div>
                                     {% endif %}
-                                </td>
 
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="badge
-                                        {% if order.delivery_status == 'delivered' %}
-                                            bg-success
+                                    <div>
+
+                                        <div class="fw-bold">
+                                            {{ order.product.product_name }}
+                                        </div>
+
+                                        {% for var in order.variations.all %}
+                                        <small class="text-muted d-block">
+                                            {{ var.variation_category | capfirst }}: {{ var.variation_value }}
+                                        </small>
+                                        {% endfor %}
+
+                                        {% if order.design %}
+
+                                        <a href="{{ order.design.image.url }}" target="_blank"
+                                            class="badge design-badge text-decoration-none">
+
+                                            View Design
+
+                                        </a>
+
                                         {% else %}
-                                            bg-primary
-                                        {% endif %}">
-                                            {{ order.get_delivery_status_display }}
+
+                                        <span class="badge bg-light text-dark border">
+                                            No Custom Design
                                         </span>
 
-                                        <form method="POST" action="{% url 'update_status' order.id %}" class="m-0 d-flex gap-1 align-items-center">
-                                            {% csrf_token %}
-                                            <select name="status" class="form-select shadow-none border-secondary" style="font-size: 11px; padding: 2px 20px 2px 6px; width: auto; height: 26px; min-height: 26px;">
-                                                <option value="pending" {% if order.delivery_status == "pending" %} selected {% endif %}>Pending</option>
-                                                <option value="assigned" {% if order.delivery_status == "assigned" %} selected {% endif %}>Assigned</option>
-                                                <option value="shipped" {% if order.delivery_status == "shipped" %} selected {% endif %}>Shipped</option>
-                                                <option value="delivered" {% if order.delivery_status == "delivered" %} selected {% endif %}>Delivered</option>
-                                            </select>
-                                            <button class="btn btn-outline-success" style="font-size: 11px; padding: 0 8px; height: 26px;">Update</button>
-                                        </form>
+                                        {% endif %}
+
                                     </div>
-                                </td>
 
-                            </tr>
+                                </div>
 
-                            {% endfor %}
+                            </td>
 
-                        </tbody>
+                            <td>
+                                <div class="fw-bold">₹{{ order.total_price }}</div>
+                                <small class="text-muted">Qty: {{ order.quantity }}</small>
+                            </td>
 
-                    </table>
+                            <td>
+                                <div class="small fw-bold mb-1">{{ order.get_payment_method_display }}</div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge 
+                                        {% if order.payment_status == 'paid' or order.payment_status == 'cod_confirmed' %}bg-success
+                                        {% elif order.payment_status == 'verification_pending' %}bg-warning text-dark
+                                        {% else %}bg-danger{% endif %}">
+                                        {{ order.get_payment_status_display }}
+                                    </span>
 
-                </div>
+                                    <form method="POST" action="{% url 'update_payment_status' order.id %}" class="m-0 d-flex gap-1 align-items-center text-start">
+                                        {% csrf_token %}
+
+                                        <select name="payment_status" class="form-select shadow-none border-secondary" style="font-size: 11px; padding: 2px 20px 2px 6px; width: auto; height: 26px;">
+                                            <option value="pending" {% if order.payment_status == 'pending' %}selected{% endif %}>Pending</option>
+                                            <option value="paid" {% if order.payment_status == 'paid' %}selected{% endif %}>Paid</option>
+                                            <option value="cod_confirmed" {% if order.payment_status == 'cod_confirmed' %}selected{% endif %}>COD</option>
+                                            <option value="verification_pending" {% if order.payment_status == 'verification_pending' %}selected{% endif %}>Verify</option>
+                                        </select>
+
+                                        <button class="btn btn-brand" style="font-size:11px;padding:0 8px;height:26px;">
+                                            Update
+                                        </button>
+
+                                    </form>
+                                </div>
+
+                                {% if order.payment_proof %}
+                                <div class="mt-1">
+                                    <a href="{{ order.payment_proof.url }}" target="_blank" class="link-brand" style="font-size:11px;">
+                                        View Proof
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+
+                                    <span class="badge
+                                    {% if order.delivery_status == 'delivered' %}
+                                        bg-success
+                                    {% else %}
+                                        badge-brand
+                                    {% endif %}">
+                                        {{ order.get_delivery_status_display }}
+                                    </span>
+
+                                    <form method="POST" action="{% url 'update_status' order.id %}" class="m-0 d-flex gap-1 align-items-center">
+
+                                        {% csrf_token %}
+
+                                        <select name="status" class="form-select shadow-none border-secondary" style="font-size:11px;padding:2px 20px 2px 6px;width:auto;height:26px;">
+                                            <option value="pending" {% if order.delivery_status == "pending" %} selected {% endif %}>Pending</option>
+                                            <option value="assigned" {% if order.delivery_status == "assigned" %} selected {% endif %}>Assigned</option>
+                                            <option value="shipped" {% if order.delivery_status == "shipped" %} selected {% endif %}>Shipped</option>
+                                            <option value="delivered" {% if order.delivery_status == "delivered" %} selected {% endif %}>Delivered</option>
+                                        </select>
+
+                                        <button class="btn btn-brand" style="font-size:11px;padding:0 8px;height:26px;">
+                                            Update
+                                        </button>
+
+                                    </form>
+                                </div>
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
 
             </div>
-
-            {% endfor %}
-
-            {% else %}
-
-            <div class="text-center py-4 text-muted">
-                No custom/print orders yet.
-            </div>
-
-            {% endif %}
 
         </div>
 
+        {% endfor %}
+
+        {% else %}
+
+        <div class="text-center py-4 text-muted">
+            No custom/print orders yet.
+        </div>
+
+        {% endif %}
+
     </div>
+
+</div>
 
 </div>
 
