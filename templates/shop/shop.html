@@ -49,9 +49,12 @@
 
                         {% if product.is_available and product.stock > 0 %}
                             <!-- ADD TO CART -->
-                            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-warning w-100 mb-2">
-                                Add to Cart
-                            </a>
+                            <form action="{% url 'add_to_cart' product.id %}" method="POST" class="ajax-cart-form">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning w-100 mb-2 add-to-cart-btn">
+                                    Add to Cart
+                                </button>
+                            </form>
 
                             <!-- BUY -->
                             <a href="{% url 'checkout' product.id %}" class="btn btn-primary w-100 mb-2">

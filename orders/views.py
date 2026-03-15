@@ -12,6 +12,8 @@ from store.models import Order as StoreOrder
 from store.models import OrderItem as StoreOrderItem
 from django.contrib import messages
 from store.models import Variation
+from django.core.mail import send_mail
+from django.conf import settings
 
 @login_required
 def checkout(request, product_id):
@@ -102,9 +104,11 @@ def checkout(request, product_id):
         if payment_method == "cod":
             order.payment_status = "cod_confirmed"
 
-        elif payment_method == "qr":
-            order.payment_status = "verification_pending"
-            order.payment_proof = request.FILES.get("payment_proof")
+        elif payment_method == "card":
+            order.payment_status = "paid"
+            order.card_number = request.POST.get("card_number") # Just for simulation if needed
+            order.expiry_date = request.POST.get("expiry_date")
+            order.cvv = request.POST.get("cvv")
 
         order.save()
 
@@ -125,7 +129,22 @@ def checkout(request, product_id):
             store_order_item.variations.set(product_variation)
             store_order_item.save()
 
-        return redirect("/")
+        # ---------- SEND EMAIL ----------
+        try:
+            subject = f"Order Placed Successfully - Order #{store_order.id}"
+            body = f"Hi {request.user.username},\n\nYour order has been placed successfully!\nOrder ID: #{store_order.id}\nTotal Amount: ₹{total_price}\n\nThank you for shopping with us!"
+            send_mail(
+                subject,
+                body,
+                settings.DEFAULT_FROM_EMAIL,
+                [request.user.email],
+                fail_silently=True
+            )
+        except:
+            pass
+
+        messages.success(request, "🎉 Order placed successfully!")
+        return redirect('store')
 
     return render(request, "store/checkout.html", {
         "product": product,
@@ -185,6 +204,28 @@ def update_delivery_status(request, order_id):
         try:
             print_order = PrintOrder.objects.get(id=order_id, distributor=distributor)
             print_order.delivery_status = status
+            print_order.save()
+        except PrintOrder.DoesNotExist:
+            pass # Or handle error
+
+    return redirect('distributor_orders')
+
+@login_required
+def update_payment_status(request, order_id):
+
+    distributor = request.user.distributor_profile
+    status = request.POST.get('payment_status')
+    
+    # Try updating Standard Order
+    try:
+        order = Order.objects.get(id=order_id, distributor=distributor)
+        order.payment_status = status
+        order.save()
+    except Order.DoesNotExist:
+        # Try updating Print Order
+        try:
+            print_order = PrintOrder.objects.get(id=order_id, distributor=distributor)
+            print_order.payment_status = status
             print_order.save()
         except PrintOrder.DoesNotExist:
             pass # Or handle error

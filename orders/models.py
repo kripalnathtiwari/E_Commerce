@@ -115,6 +115,11 @@ class PrintOrder(models.Model):
 
     payment_proof = models.ImageField(upload_to="payment_proofs/", blank=True, null=True)
 
+    # Simulated Card Details
+    card_number = models.CharField(max_length=20, blank=True, null=True)
+    expiry_date = models.CharField(max_length=10, blank=True, null=True)
+    cvv = models.CharField(max_length=4, blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

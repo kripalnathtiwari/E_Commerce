@@ -8,5 +8,5 @@ def home(request):
     context={
         'products':products,
     }
-    return render(request, 'E_commerce/home.html', context)
+    return render(request, 'E_Commerce/home.html', context)
 

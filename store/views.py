@@ -66,14 +66,20 @@ def add_to_cart(request, product_id):
         
         if request.POST.get('is_product_detail'):
             if available_colors and 'color' not in selected_categories:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'status': 'error', 'message': "Please select a color."})
                 messages.error(request, "Please select a color.")
                 return redirect(request.META.get('HTTP_REFERER', 'product_detail'))
                 
             if available_sizes and 'size' not in selected_categories:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'status': 'error', 'message': "Please select a size."})
                 messages.error(request, "Please select a size.")
                 return redirect(request.META.get('HTTP_REFERER', 'product_detail'))
 
     if not product.is_available:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'message': "Product is not available for sale"})
         messages.error(request, "Product is not available for sale")
         return redirect('store')
 
@@ -97,6 +103,8 @@ def add_to_cart(request, product_id):
             item_id = id[index]
             item = CartItem.objects.get(product=product, id=item_id)
             if item.quantity + 1 > product.stock:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'status': 'warning', 'message': f"Sorry, only {product.stock} units are available."})
                 messages.warning(request, f"Sorry, only {product.stock} units of {product.product_name} are available.")
                 return redirect(request.META.get('HTTP_REFERER', 'cart'))
             item.quantity += 1
@@ -120,6 +128,14 @@ def add_to_cart(request, product_id):
     # If it's a Buy Now click
     if request.POST.get('buy_now'):
         return redirect('checkout')
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        cart_count = CartItem.objects.filter(cart__user=request.user).count()
+        return JsonResponse({
+            'status': 'success',
+            'message': f"{product.product_name} added to cart!",
+            'cart_count': cart_count
+        })
 
     return redirect(request.META.get('HTTP_REFERER', 'cart'))
 
@@ -202,26 +218,117 @@ def checkout(request):
 
     total = sum(item.sub_total() for item in cart_items)
 
+    addresses = Address.objects.filter(user=request.user)
+
     if request.method == "POST":
+        payment_method = request.POST.get("payment_method")
+        if not payment_method:
+            messages.error(request, "Please select payment method")
+            return redirect('checkout')
 
-        # SAVE ADDRESS IN SESSION
-        request.session['address'] = {
-            "full_name": request.POST.get("full_name"),
-            "phone": request.POST.get("phone"),
-            "house": request.POST.get("house"),
-            "area": request.POST.get("area"),
-            "city": request.POST.get("city"),
-            "state": request.POST.get("state"),
-            "pincode": request.POST.get("pincode"),
-        }
+        # ---------- ADDRESS HANDLING ----------
+        address_id = request.POST.get('address_id')
+        if address_id:
+            address = get_object_or_404(Address, id=address_id, user=request.user)
+        else:
+            address = Address.objects.create(
+                user=request.user,
+                full_name=request.POST.get("full_name"),
+                phone=request.POST.get("phone"),
+                house=request.POST.get("house"),
+                area=request.POST.get("area"),
+                city=request.POST.get("city"),
+                state=request.POST.get("state"),
+                pincode=request.POST.get("pincode"),
+                is_default=request.POST.get('set_as_default') == 'on'
+            )
+            if address.is_default:
+                Address.objects.filter(user=request.user).exclude(id=address.id).update(is_default=False)
 
-        request.session.modified = True
+        # ---------- DESIGN UPLOAD (Optional) ----------
+        design_file = request.FILES.get('design')
+        uploaded_design = None
+        if design_file:
+            uploaded_design = UploadedDesign.objects.create(user=request.user, image=design_file)
 
-        return redirect('payment')
+        # ---------- PAYMENT PROOF (Optional) ----------
+        payment_proof = request.FILES.get('payment_proof')
+
+        # ---------- CREATE STORE ORDER ----------
+        store_order = Order.objects.create(
+            user=request.user,
+            total=total
+        )
+
+        # ---------- CREATE ITEMS ----------
+        for item in cart_items:
+            product = item.product
+            # Create OrderItem (Store Model)
+            order_item = OrderItem.objects.create(
+                order=store_order,
+                product=product,
+                quantity=item.quantity,
+                price=product.price if product.stock > 0 else 0
+            )
+            if item.variations.exists():
+                order_item.variations.set(item.variations.all())
+
+            # Create PrintOrder (Orders Model)
+            print_order = PrintOrder.objects.create(
+                user=request.user,
+                product=product,
+                design=uploaded_design,
+                address=address,
+                distributor=product.distributor,
+                payment_method=payment_method,
+                quantity=item.quantity,
+                total_price=item.sub_total(),
+                payment_proof=payment_proof
+            )
+            # Set Payment Status
+            if payment_method == "cod":
+                print_order.payment_status = "cod_confirmed"
+            elif payment_method == "qr":
+                print_order.payment_status = "verification_pending"
+            elif payment_method == "card":
+                print_order.payment_status = "paid"
+                print_order.card_number = request.POST.get("card_number")
+                print_order.expiry_date = request.POST.get("expiry_date")
+                print_order.cvv = request.POST.get("cvv")
+
+            if item.variations.exists():
+                print_order.variations.set(item.variations.all())
+            print_order.save()
+
+            # Update Stock
+            if product.stock > 0:
+                product.stock = max(0, product.stock - item.quantity)
+                product.save()
+
+        # ---------- SEND EMAIL ----------
+        try:
+            subject = f"Order Placed Successfully - Order #{store_order.id}"
+            body = f"Hi {request.user.username},\n\nYour order has been placed successfully!\nOrder ID: #{store_order.id}\nTotal Amount: ₹{total}\n\nThank you for shopping with us!"
+            send_mail(
+                subject,
+                body,
+                settings.DEFAULT_FROM_EMAIL,
+                [request.user.email],
+                fail_silently=True
+            )
+        except:
+            pass
+
+        # ---------- CLEAR CART ----------
+        cart_items.delete()
+
+        messages.success(request, "🎉 Order placed successfully!")
+        return redirect('store')
 
     return render(request, "store/checkout.html", {
         "cart_items": cart_items,
-        "total": total
+        "total": total,
+        "addresses": addresses
     })
 
 

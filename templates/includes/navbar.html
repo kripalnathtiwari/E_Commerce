@@ -222,8 +222,7 @@
                                 <i class="fa fa-shopping-cart"></i>
                             </div>
 
-                            {% if cart_count > 0 %}
-                            <span style="
+                            <span id="cart-count" style="
         position:absolute;
         top:-5px;
         right:-5px;
@@ -232,10 +231,10 @@
         font-size:11px;
         padding:3px 7px;
         border-radius:50%;
-        font-weight:600;">
+        font-weight:600;
+        {% if cart_count == 0 %}display:none;{% endif %}">
                                 {{ cart_count }}
                             </span>
-                            {% endif %}
 
                         </a>
 

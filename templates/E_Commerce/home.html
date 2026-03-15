@@ -47,9 +47,12 @@
 						</div>
 
 						<div class="mt-2">
-							<a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-primary">
-								Add to Cart
-							</a>
+							<form action="{% url 'add_to_cart' product.id %}" method="POST" class="ajax-cart-form d-inline">
+								{% csrf_token %}
+								<button type="submit" class="btn btn-sm btn-primary add-to-cart-btn">
+									Add to Cart
+								</button>
+							</form>
 							<a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-success">
 								Buy Now
 							</a>

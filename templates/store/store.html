@@ -135,9 +135,9 @@ onchange="this.form.submit()">
 
                         {% if product.stock > 0 %}
 
-                        <form action="{% url 'add_to_cart' product.id %}" method="POST" class="d-grid gap-2">
+                        <form action="{% url 'add_to_cart' product.id %}" method="POST" class="ajax-cart-form d-grid gap-2">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-warning btn-sm">
+                            <button type="submit" class="btn btn-warning btn-sm add-to-cart-btn">
                                 <i class="fas fa-shopping-cart"></i> Add to Cart
                             </button>
                             <button type="submit" name="buy_now" value="true" class="btn btn-primary btn-sm">
