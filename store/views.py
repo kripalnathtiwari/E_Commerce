@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
-from .models import Product, Cart, CartItem, Order, OrderItem, Variation
+from .models import Product, Cart, CartItem, Order, OrderItem, Variation, ReviewRating
 from category.models import Category
+from .forms import ReviewForm
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.conf import settings
@@ -35,9 +36,17 @@ def product_detail(request, product_id):
     # Fetch 5 related products from the same category, excluding the current one
     related_products = Product.objects.filter(category=product.category, is_available=True).exclude(id=product.id)[:5]
     
+    orderproduct = False
+    if request.user.is_authenticated:
+        orderproduct = OrderItem.objects.filter(order__user=request.user, product_id=product.id).exists()
+    
+    reviews = ReviewRating.objects.filter(product_id=product.id, status=True).order_by('-updated_at')
+    
     return render(request, 'store/product_detail.html', {
         'product': product,
         'related_products': related_products,
+        'orderproduct': orderproduct,
+        'reviews': reviews,
     })
 
 
@@ -283,7 +292,8 @@ def checkout(request):
                 payment_method=payment_method,
                 quantity=item.quantity,
                 total_price=item.sub_total(),
-                payment_proof=payment_proof
+                payment_proof=payment_proof,
+                store_order_item=order_item # LINK HERE
             )
             # Set Payment Status
             if payment_method == "cod":
@@ -396,7 +406,8 @@ def payment(request):
                 distributor=product.distributor,
                 payment_method=payment_method,
                 quantity=item.quantity,
-                total_price=item.sub_total()
+                total_price=item.sub_total(),
+                store_order_item=order_item # LINK HERE
             )
             # Transfer variations to PrintOrder
             if item.variations.exists():
@@ -428,19 +439,11 @@ def payment(request):
 # ================= ORDER HISTORY =================
 @login_required
 def order_history(request):
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
-
-    order_data = []
-
-    for order in orders:
-        items = OrderItem.objects.filter(order=order)
-        order_data.append({
-            "order": order,
-            "items": items
-        })
+    # Fetch all order items for the user, sorted by the order date
+    order_items = OrderItem.objects.filter(order__user=request.user).order_by('-order__created_at', '-id')
 
     return render(request, "store/order_history.html", {
-        "orders": order_data
+        "order_items": order_items
     })
 
 @login_required
@@ -502,3 +505,76 @@ def search(request):
         'keyword': keyword,
     }
     return render(request, 'store/store.html', context)
+
+@login_required
+def submit_review(request, product_id):
+    url = request.META.get('HTTP_REFERER') or 'store'
+    if request.method == 'POST':
+        # Ensure user purchased
+        has_purchased = OrderItem.objects.filter(order__user=request.user, product_id=product_id).exists()
+        if not has_purchased:
+            messages.error(request, "You must purchase this product to post a review.")
+            return redirect(url)
+
+        try:
+            reviews = ReviewRating.objects.get(user__id=request.user.id, product__id=product_id)
+            form = ReviewForm(request.POST, request.FILES, instance=reviews)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Thank you! Your review has been updated.')
+            else:
+                messages.error(request, "Invalid form data.")
+            return redirect(url)
+        except ReviewRating.DoesNotExist:
+            form = ReviewForm(request.POST, request.FILES)
+            if form.is_valid():
+                data = ReviewRating()
+                data.subject = form.cleaned_data['subject']
+                data.rating = form.cleaned_data['rating']
+                data.review = form.cleaned_data['review']
+                data.image = form.cleaned_data['image']
+                data.ip = request.META.get('REMOTE_ADDR')
+                data.product_id = product_id
+                data.user_id = request.user.id
+                data.save()
+                messages.success(request, 'Thank you! Your review has been submitted.')
+                return redirect(url)
+            else:
+                messages.error(request, "Invalid form data.")
+                return redirect(url)
+    return redirect(url)
+
+@login_required
+def write_review(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    # Check if user purchased the product and it was delivered
+    has_purchased = OrderItem.objects.filter(order__user=request.user, product_id=product_id, status='Delivered').exists()
+    
+    if not has_purchased:
+        messages.error(request, "You can only review products that have been delivered to you.")
+        return redirect('order_history')
+
+    review = ReviewRating.objects.filter(user=request.user, product=product).first()
+    
+    if request.method == 'POST':
+        if review:
+            form = ReviewForm(request.POST, request.FILES, instance=review)
+        else:
+            form = ReviewForm(request.POST, request.FILES)
+            
+        if form.is_valid():
+            data = form.save(commit=False)
+            data.user = request.user
+            data.product = product
+            data.ip = request.META.get('REMOTE_ADDR')
+            data.save()
+            messages.success(request, "Thank you! Your review has been submitted.")
+            return redirect('order_history')
+    else:
+        form = ReviewForm(instance=review)
+
+    return render(request, 'store/write_review.html', {
+        'product': product,
+        'form': form,
+        'review': review
+    })

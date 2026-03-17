@@ -36,6 +36,20 @@ class Product(models.Model):
     def sizes(self):
         return self.variation_set.filter(variation_category__iexact='size', is_active=True)
 
+    def averageReview(self):
+        reviews = ReviewRating.objects.filter(product=self, status=True).aggregate(average=models.Avg('rating'))
+        avg = 0
+        if reviews['average'] is not None:
+            avg = float(reviews['average'])
+        return avg
+
+    def countReview(self):
+        reviews = ReviewRating.objects.filter(product=self, status=True).aggregate(count=models.Count('id'))
+        count = 0
+        if reviews['count'] is not None:
+            count = int(reviews['count'])
+        return count
+
 class VariationManager(models.Manager):
     def colors(self):
         return super(VariationManager, self).filter(variation_category='color', is_active=True)
@@ -99,9 +113,34 @@ class OrderItem(models.Model):
         null=True,
         blank=True,
     )
+    STATUS = (
+        ('Pending', 'Pending'),
+        ('Confirmed', 'Confirmed'),
+        ('Shipped', 'Shipped'),
+        ('Delivered', 'Delivered'),
+        ('Cancelled', 'Cancelled'),
+    )
     quantity = models.IntegerField()
     price = models.IntegerField()
+    status = models.CharField(max_length=20, choices=STATUS, default='Pending')
+    updated_at = models.DateTimeField(auto_now=True)
     variations = models.ManyToManyField(Variation, blank=True, related_name="store_variations")
 
     def __str__(self):
         return f"Order #{self.order.id} - {self.product.product_name}"
+
+
+class ReviewRating(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=100, blank=True)
+    review = models.TextField(max_length=500, blank=True)
+    rating = models.FloatField()
+    ip = models.CharField(max_length=20, blank=True)
+    image = models.ImageField(upload_to='reviews/', null=True, blank=True)
+    status = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.subject

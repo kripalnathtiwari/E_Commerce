@@ -1,66 +1,195 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block content %}
 
-<div class="container mt-5">
-    <h3>My Orders</h3>
+<style>
+    .order-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 25px;
+        background: #fff;
+        transition: 0.3s shadow;
+    }
 
-    {% if orders %}
+    .order-card:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
 
-    {% for data in orders %}
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header">
-            <strong>Order #{{ data.order.id }}</strong>
-            <span class="float-right">
-                {{ data.order.created_at|date:"d M Y" }}
-            </span>
-        </div>
+    .order-header {
+        background: #f8f9fa;
+        padding: 15px 20px;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-        <div class="card-body">
-            <table class="table">
-                <tr>
-                    <th>Product</th>
-                    <th>Qty</th>
-                    <th>Price</th>
-                    <th>Product Image</th>
-                </tr>
+    .order-item {
+        padding: 20px;
+        border-bottom: 1px solid #f1f1f1;
+        display: flex;
+        align-items: center;
+    }
 
-                {% for item in data.items %}
-                <tr>
-                    <td>
-                        <a href="{% url 'product_detail' item.product.id %}"
-                            style="text-decoration:none; color:inherit;">
-                            {{ item.product.product_name }}
-                        </a>
-                    </td>
+    .order-item:last-child {
+        border-bottom: none;
+    }
 
-                    <td>{{ item.quantity }}</td>
+    .item-img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 20px;
+    }
 
-                    <td>₹{{ item.price }}</td>
+    .item-details {
+        flex-grow: 1;
+    }
 
-                    <td>
-                        <a href="{% url 'product_detail' item.product.id %}">
-                            {% if item.product.image %}
-                            <img src="{{ item.product.image.url }}" width="70" height="70"
-                                style="object-fit:cover; border-radius:6px;">
-                            {% else %}
-                            No Image
-                            {% endif %}
-                        </a>
-                    </td>
+    .item-name {
+        font-weight: 600;
+        font-size: 16px;
+        color: #212121;
+        margin-bottom: 5px;
+        display: block;
+        text-decoration: none;
+    }
 
-                </tr>
+    .item-name:hover {
+        color: #2874f0;
+    }
+
+    .item-price {
+        font-weight: 700;
+        font-size: 18px;
+        color: #212121;
+    }
+
+    .status-section {
+        min-width: 250px;
+        text-align: right;
+    }
+
+    .status-dot {
+        height: 10px;
+        width: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+
+    .status-Delivered { background-color: #26a541; }
+    .status-Pending { background-color: #ff9f00; }
+    .status-Shipped { background-color: #2874f0; }
+    .status-Cancelled { background-color: #d32f2f; }
+
+    .status-text {
+        font-weight: 600;
+        color: #212121;
+    }
+
+    .sub-status {
+        font-size: 12px;
+        color: #757575;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .review-link {
+        color: #388e3c; /* Green color */
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        margin-top: 10px;
+        transition: 0.2s;
+    }
+
+    .review-link i {
+        margin-right: 5px;
+        font-size: 14px;
+    }
+
+    .review-link:hover {
+        text-decoration: underline;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: #fff;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+    }
+
+    .empty-state i {
+        font-size: 64px;
+        color: #bdbdbd;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <h3 class="mb-4 fw-bold">My Orders</h3>
+
+            {% if order_items %}
+                {% for item in order_items %}
+                    <div class="order-card shadow-sm">
+                        <div class="card-body p-0">
+                            <div class="order-item">
+                                <a href="{% url 'product_detail' item.product.id %}">
+                                    {% if item.product.image %}
+                                        <img src="{{ item.product.image.url }}" class="item-img shadow-sm">
+                                    {% else %}
+                                        <div class="item-img bg-light d-flex align-items-center justify-content-center text-muted">No Image</div>
+                                    {% endif %}
+                                </a>
+                                
+                                <div class="item-details">
+                                    <a href="{% url 'product_detail' item.product.id %}" class="item-name">
+                                        {{ item.product.product_name }}
+                                    </a>
+                                    <div class="text-muted small mb-1">
+                                        Qty: {{ item.quantity }}
+                                    </div>
+                                    <div class="text-muted small mb-2">
+                                        Order ID: #{{ item.order.id }} | {{ item.order.created_at|date:"d M Y" }}
+                                    </div>
+                                    <div class="item-price">₹{{ item.price }}</div>
+                                </div>
+
+                                <div class="status-section">
+                                    <div class="mb-1">
+                                        <span class="status-dot status-{{ item.status }}"></span>
+                                        <span class="status-text">{{ item.status }} on {{ item.updated_at|date:"M d" }}</span>
+                                    </div>
+                                    <span class="sub-status">Your item has been {{ item.status | lower }}</span>
+                                    
+                                    {% if item.status == 'Delivered' %}
+                                    <a href="{% url 'write_review' item.product.id %}" class="review-link">
+                                        <i class="fas fa-star"></i> Rate & Review Product
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 {% endfor %}
-            </table>
-
-            <h5 class="text-right">Total: ₹{{ data.order.total }}</h5>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-shopping-bag"></i>
+                    <h4>No orders yet</h4>
+                    <p class="text-muted">Looks like you haven't placed any orders. Start shopping now!</p>
+                    <a href="{% url 'store' %}" class="btn btn-primary px-4 mt-2">Go to Store</a>
+                </div>
+            {% endif %}
         </div>
     </div>
-    {% endfor %}
-
-    {% else %}
-    <p>You have no orders yet.</p>
-    {% endif %}
-
 </div>
 
 {% endblock %}

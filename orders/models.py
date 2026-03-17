@@ -79,6 +79,15 @@ class PrintOrder(models.Model):
     # VARIATIONS
     variations = models.ManyToManyField(Variation, blank=True)
 
+    # Link to Store OrderItem
+    store_order_item = models.ForeignKey(
+        'store.OrderItem',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="print_orders"
+    )
+
     # PAYMENT
     PAYMENT_METHODS = [
         ("card", "Card/UPI"),

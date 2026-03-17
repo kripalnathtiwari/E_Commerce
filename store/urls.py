@@ -14,6 +14,9 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('orders/', views.order_history, name='order_history'),
     path("payment/", views.payment, name="payment"),
-    path('delete-product/<int:product_id>/', views.delete_product, name='delete_product'),
+    path('submit_review/<int:product_id>/', views.submit_review, name='submit_review'),
     path('search/', views.search, name='search'),
+    path('distributor/dashboard/', views.distributor_dashboard, name='distributor_dashboard'),
+    path('delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
+    path('write_review/<int:product_id>/', views.write_review, name='write_review'),
 ]

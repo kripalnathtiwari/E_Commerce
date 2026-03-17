@@ -177,34 +177,79 @@
 
         <br>
 
-        <div class="row">
-            <div class="col-md-9">
-
-                <header class="section-heading">
-                    <h3>Customer Reviews </h3>
-
-                </header>
-
-                <article class="box mb-3">
-                    <div class="icontext w-100">
-                        <img src="{% static 'images/avatars/avatar1.jpg' %}" class="img-xs icon rounded-circle">
-                        <div class="text">
-                            <span class="date text-muted float-md-right">24.04.2020 </span>
-                            <h6 class="mb-1">Aman Jha </h6>
-
+                <div class="row">
+                    <div class="col-md-9">
+                        <!-- Professional Review Header (3rd Image Style) -->
+                        <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
+                            <div>
+                                <h3 class="fw-bold mb-1">Ratings and reviews</h3>
+                                <div class="d-flex align-items-center">
+                                    <div class="h3 fw-bold mb-0 me-2">{{ product.averageReview }} <span class="text-success" style="font-size: 1.5rem;">★</span></div>
+                                    <div class="badge bg-success-light text-success px-3 py-2 rounded-pill fw-bold">
+                                        {% if product.averageReview >= 4 %}Very Good{% elif product.averageReview >= 3 %}Good{% else %}Average{% endif %}
+                                    </div>
+                                </div>
+                                <div class="text-muted small mt-1">based on {{ product.countReview }} ratings by <i class="fas fa-check-circle text-muted"></i> Verified Buyers</div>
+                            </div>
                         </div>
-                    </div> <!-- icontext.// -->
-                    <div class="mt-3">
-                        <p>
-                            Dummy comment value for now.
-                        </p>
-                    </div>
-                </article>
 
+                        <!-- Review Images Gallery -->
+                        {% if reviews %}
+                            <div class="mb-5 overflow-auto d-flex gap-3 pb-2" style="scrollbar-width: thin;">
+                                {% for review in reviews %}
+                                    {% if review.image %}
+                                        <div class="flex-shrink-0 position-relative" style="width: 180px; height: 180px;">
+                                            <a href="{{ review.image.url }}" target="_blank">
+                                                <img src="{{ review.image.url }}" class="rounded shadow-sm w-100 h-100" style="object-fit: cover; cursor: zoom-in;">
+                                            </a>
+                                            {% if forloop.counter == 5 and reviews.count > 5 %}
+                                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center text-white fw-bold fs-4 rounded">
+                                                    +{{ reviews.count|add:"-5" }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
 
+                        <!-- Individual Review Cards (Horizontal Scroll/Grid mix) -->
+                        <div class="row row-cols-1 row-cols-md-2 g-4 mb-5">
+                            {% for review in reviews %}
+                            <div class="col">
+                                <div class="card h-100 border-0 shadow-sm p-3 rounded-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div class="badge bg-success text-white px-2 py-1 small rounded-1">
+                                            {{ review.rating }} <small>★</small>
+                                        </div>
+                                        <span class="text-muted small">{{ review.updated_at|timesince }} ago</span>
+                                    </div>
+                                    <h6 class="fw-bold mb-2">{{ review.subject }}</h6>
+                                    <p class="text-secondary small mb-3 flex-grow-1">{{ review.review|truncatechars:120 }}</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-auto">
+                                        <div class="author-info">
+                                            <div class="fw-bold small text-dark">{{ review.user.username }}</div>
+                                            <div class="text-muted x-small" style="font-size: 11px;">
+                                                <i class="fas fa-check-circle text-primary me-1"></i> Verified Buyer
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-3 text-muted small">
+                                            <span><i class="far fa-thumbs-up"></i> 0</span>
+                                            <span><i class="far fa-thumbs-down"></i> 0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-12 text-center py-5">
+                                <div class="text-muted">No reviews yet. Be the first to buy and review!</div>
+                            </div>
+                            {% endfor %}
+                        </div>
 
-            </div> <!-- col.// -->
-        </div> <!-- row.// -->
+                    </div> <!-- col.// -->
+                </div> <!-- row.// -->
 
         <br>
         {% if related_products %}

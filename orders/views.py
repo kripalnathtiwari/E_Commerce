@@ -205,6 +205,36 @@ def update_delivery_status(request, order_id):
             print_order = PrintOrder.objects.get(id=order_id, distributor=distributor)
             print_order.delivery_status = status
             print_order.save()
+            
+            # Sync to Store OrderItem if linked or find a match
+            store_item = None
+            if print_order.store_order_item:
+                store_item = print_order.store_order_item
+            else:
+                # Fallback: Find matching StoreOrderItem by user, product, and quantity
+                from store.models import OrderItem as StoreOrderItem
+                store_item = StoreOrderItem.objects.filter(
+                    order__user=print_order.user,
+                    product=print_order.product,
+                    quantity=print_order.quantity,
+                    status='Pending' # Try to find the one that is still pending
+                ).first()
+                if store_item:
+                    # Link it for future updates
+                    print_order.store_order_item = store_item
+                    print_order.save()
+
+            if store_item:
+                # Map 'pending', 'assigned', 'shipped', 'delivered' to 'Pending', 'Confirmed', 'Shipped', 'Delivered'
+                status_map = {
+                    'pending': 'Pending',
+                    'assigned': 'Confirmed',
+                    'shipped': 'Shipped',
+                    'delivered': 'Delivered'
+                }
+                store_item.status = status_map.get(status, 'Pending')
+                store_item.save()
+                
         except PrintOrder.DoesNotExist:
             pass # Or handle error
 
