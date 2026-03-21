@@ -19,4 +19,10 @@ urlpatterns = [
     path('my-products/', views.distributor_products, name='distributor_products'),
     path('store/', views.shop, name="shop"),
     path('update-stock/<int:product_id>/', views.update_stock, name='update_stock'),
+    
+    # Return URLs
+    path('create-return/<int:order_id>/', views.create_return, name='create_return'),
+    path('my-returns/', views.view_returns, name='view_returns'),
+    path('distributor/returns/', views.distributor_returns, name='distributor_returns'),
+    path('update-return-status/<int:return_id>/', views.update_return_status, name='update_return_status'),
 ]

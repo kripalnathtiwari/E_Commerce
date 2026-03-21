@@ -4,7 +4,8 @@ from .models import Address, UploadedDesign, PrintOrder
 admin.site.register(Address)
 admin.site.register(UploadedDesign)
 from .models import Distributor
-from .models import  Order, OrderItem
+from .models import  Order, OrderItem, Return
+
 @admin.register(Distributor)
 class DistributorAdmin(admin.ModelAdmin):
     list_display = ("user", "phone", "city")
@@ -29,3 +30,11 @@ class OrderAdmin(admin.ModelAdmin):
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ('order','product','quantity','price')
+
+
+@admin.register(Return)
+class ReturnAdmin(admin.ModelAdmin):
+    list_display = ('id', 'order', 'user', 'return_status', 'created_at', 'updated_at')
+    list_filter = ('return_status', 'created_at')
+    search_fields = ('order__id', 'user__username', 'issue_description')
+    readonly_fields = ('created_at', 'updated_at')

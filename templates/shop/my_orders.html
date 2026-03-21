@@ -5,26 +5,63 @@
 
     <h3>My Orders</h3>
 
-    <table class="table table-bordered mt-3">
-
-        <tr>
-            <th>Order ID</th>
-            <th>Status</th>
-            <th>Total Price</th>
-            <th>Date</th>
-        </tr>
-
-        {% for order in orders %}
-        <tr>
-            <td>{{ order.id }}</td>
-            <td>{{ order.delivery_status }}</td>
-            <td>{{ order.payment_status }}</td>
-            <td>₹{{ order.total_price }}</td>
-            <td>{{ order.created_at }}</td>
-        </tr>
-        {% endfor %}
-
+    {% if orders %}
+    <table class="table table-bordered table-hover mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Order ID</th>
+                <th>Status</th>
+                <th>Payment</th>
+                <th>Total Price</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>
+                    <span class="badge {% if order.delivery_status == 'delivered' %}bg-success{% elif order.delivery_status == 'shipped' %}bg-info{% elif order.delivery_status == 'confirmed' %}bg-warning{% else %}bg-secondary{% endif %}">
+                        {{ order.delivery_status|title }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge {% if order.payment_status == 'paid' %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ order.payment_status|title }}
+                    </span>
+                </td>
+                <td>₹{{ order.total_price }}</td>
+                <td>{{ order.created_at|date:"d M Y" }}</td>
+                <td>
+                    {% if order.delivery_status == 'delivered' %}
+                        {% if not order.returns.all %}
+                            <a href="{% url 'create_return' order.id %}" class="btn btn-sm btn-warning">Request Return</a>
+                        {% elif order.returns.all|first.return_status == 'pending' %}
+                            <span class="badge bg-info">Return Pending</span>
+                        {% elif order.returns.all|first.return_status == 'approved' %}
+                            <span class="badge bg-success">Return Approved</span>
+                        {% elif order.returns.all|first.return_status == 'rejected' %}
+                            <span class="badge bg-danger">Return Rejected</span>
+                        {% endif %}
+                    {% else %}
+                        <small class="text-muted">Returns available after delivery</small>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
+
+    <hr>
+    <div class="mt-3">
+        <a href="{% url 'view_returns' %}" class="btn btn-info">View All Returns</a>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-3">
+        You haven't placed any orders yet.
+    </div>
+    {% endif %}
 
 </div>
 

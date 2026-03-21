@@ -1,0 +1,430 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #f8fafc;
+        color: #1e293b;
+    }
+
+    /* Modern Color Palette */
+    :root {
+        --primary: #0066ff;
+        --primary-light: #eef2ff;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #0ea5e9;
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(203, 213, 225, 0.5);
+    }
+
+    .dashboard-container {
+        padding: 2.5rem 1rem;
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    /* Glassmorphism Header */
+    .dashboard-header {
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 1.25rem;
+        padding: 1.5rem 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-title {
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: #0f172a;
+        margin: 0;
+    }
+
+    /* Stat Cards */
+    .stat-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0.5rem 0;
+    }
+
+    .stat-label {
+        color: #334155;
+        font-weight: 700;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Table & Cards */
+    .return-table-card {
+        background: white;
+        border: 1px solid #cbd5e1;
+        border-radius: 1.25rem;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .table thead th {
+        background: #f1f5f9;
+        border-top: none;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        color: #1e293b;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .table tbody td {
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e2e8f0;
+        color: #1e293b;
+    }
+
+    /* Badge styles */
+    .badge-modern {
+        padding: 0.5em 1em;
+        font-weight: 600;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+
+    .bg-pending { background: #fff7ed; color: #c2410c; }
+    .bg-approved { background: #f0fdf4; color: #15803d; }
+    .bg-rejected { background: #fef2f2; color: #991b1b; }
+    .bg-completed { background: #eff6ff; color: #1d4ed8; }
+
+    /* Modal Styling */
+    .modal-content-modern {
+        border-radius: 1.5rem;
+        border: none;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-header-modern {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1.5rem 2rem;
+    }
+
+    .modal-body-modern {
+        padding: 2rem;
+    }
+
+    .section-title-modern {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #94a3b8;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-box-modern {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-item {
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .info-label { color: #475569; font-size: 0.875rem; font-weight: 500; }
+    .info-value { color: #000000; font-weight: 700; font-size: 0.875rem; }
+
+    .photo-preview {
+        max-width: 100%;
+        border-radius: 1rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        transition: transform 0.3s ease;
+    }
+
+    .photo-preview:hover { transform: scale(1.02); }
+
+    /* Buttons */
+    .btn-modern {
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-action-view { background: #f1f5f9; color: #1e293b; border: none; }
+    .btn-action-view:hover { background: #e2e8f0; transform: translateY(-1px); }
+
+    .btn-action-approve { background: var(--success); color: white; border: none; }
+    .btn-action-approve:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+</style>
+
+<div class="dashboard-container">
+
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div>
+            <h2 class="header-title">Return Requests</h2>
+            <p class="text-secondary small mb-0 mt-1">Review and manage customer return claims.</p>
+        </div>
+        <a href="{% url 'distributor_orders' %}" class="btn-modern btn-action-view text-decoration-none">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="row mb-5">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Total Returns</div>
+                <div class="stat-number text-primary">{{ returns|length }}</div>
+                <i class="fas fa-list-ul text-primary-light h4 mb-0"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Pending</div>
+                <div class="stat-number text-warning">{{ pending_count }}</div>
+                <i class="fas fa-clock text-warning h4 mb-0 opacity-20"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Approved</div>
+                <div class="stat-number text-success">{{ approved_count }}</div>
+                <i class="fas fa-check-circle text-success h4 mb-0 opacity-20"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Completed</div>
+                <div class="stat-number text-info">{{ completed_count }}</div>
+                <i class="fas fa-check-double text-info h4 mb-0 opacity-20"></i>
+            </div>
+        </div>
+    </div>
+
+    {% if returns %}
+    <div class="return-table-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Claim ID</th>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for return in returns %}
+                    <tr style="cursor: pointer;">
+                        <td class="font-weight-bold">#{{ return.id }}</td>
+                        <td class="text-primary font-weight-bold">#{{ return.order.id }}</td>
+                        <td>
+                            <div class="font-weight-600">{{ return.user.get_full_name|default:return.user.username }}</div>
+                            <div class="small text-muted">{{ return.user.email }}</div>
+                        </td>
+                        <td>{{ return.created_at|date:"d M Y, H:i" }}</td>
+                        <td>
+                            <span class="badge-modern bg-{{ return.return_status }}">
+                                {{ return.return_status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-modern btn-action-view btn-sm" data-toggle="modal" data-target="#returnModal{{ return.id }}">
+                                <i class="fas fa-search-plus"></i> View Claim
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modals Section -->
+    {% for return in returns %}
+    <div class="modal fade" id="returnModal{{ return.id }}" tabindex="-1" aria-labelledby="returnModalLabel{{ return.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content modal-content-modern">
+                <div class="modal-header modal-header-modern">
+                    <h5 class="modal-title font-weight-700" id="returnModalLabel{{ return.id }}">Return Claim #{{ return.id }}</h5>
+                    <button type="button" class="close border-0 bg-transparent h3" data-dismiss="modal" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body modal-body-modern">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="section-title-modern"><i class="fas fa-user-circle"></i> Customer</div>
+                            <div class="info-box-modern">
+                                <div class="info-item"><span class="info-label">Name</span> <span class="info-value">{{ return.user.get_full_name }}</span></div>
+                                <div class="info-item"><span class="info-label">Email</span> <span class="info-value">{{ return.user.email }}</span></div>
+                                <div class="info-item"><span class="info-label">Phone</span> <span class="info-value">{{ return.user.phone_num|default:"N/A" }}</span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="section-title-modern"><i class="fas fa-shopping-bag"></i> Order Info</div>
+                            <div class="info-box-modern">
+                                <div class="info-item"><span class="info-label">Ref ID</span> <span class="info-value">#{{ return.order.id }}</span></div>
+                                <div class="info-item"><span class="info-label">Total</span> <span class="info-value">₹{{ return.order.total }}</span></div>
+                                <div class="info-item"><span class="info-label">Order Date</span> <span class="info-value">{{ return.order.created_at|date:"d M Y" }}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% with print_order=return.order.items.first.print_orders.first %}
+                    {% if print_order %}
+                    <div class="section-title-modern"><i class="fas fa-truck"></i> Shipping Address & Payment</div>
+                    <div class="info-box-modern p-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="font-weight-600 mb-1">{{ print_order.address.full_name }}</div>
+                                <div class="small text-secondary">
+                                    {{ print_order.address.house }}, {{ print_order.address.area }}<br>
+                                    {{ print_order.address.city }}, {{ print_order.address.state }} - {{ print_order.address.pincode }}<br>
+                                    <span class="text-primary font-weight-600">Ph: {{ print_order.address.phone }}</span>
+                                </div>
+                            </div>
+                            {% if print_order.payment_proof %}
+                            <a href="{{ print_order.payment_proof.url }}" target="_blank" class="proof-badge text-decoration-none">
+                                <i class="fas fa-qrcode"></i> QR Proof
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    <div class="section-title-modern"><i class="fas fa-tags"></i> Items in this Order</div>
+                    <div class="table-responsive info-box-modern p-0 mb-4 overflow-hidden">
+                        <table class="table table-sm table-borderless mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="pl-3 py-2">Item ID</th>
+                                    <th class="py-2">Product</th>
+                                    <th class="py-2">Qty</th>
+                                    <th class="py-2">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in return.order.items.all %}
+                                <tr>
+                                    <td class="pl-3 text-secondary" style="font-family: monospace;">{{ item.item_id|default:item.id }}</td>
+                                    <td>
+                                        <div class="font-weight-600 text-dark">{{ item.product.product_name }}</div>
+                                        {% for var in item.variations.all %}
+                                            <span class="small text-muted mr-2">{{ var.variation_category|title }}: <b>{{ var.variation_value }}</b></span>
+                                        {% endfor %}
+                                        
+                                        {% for po in item.print_orders.all %}
+                                            {% if po.design %}
+                                                <br><a href="{{ po.design.image.url }}" target="_blank" class="small text-primary font-weight-bold mt-1 d-inline-block">View Print Design →</a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>₹{{ item.price }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-7">
+                            <div class="section-title-modern"><i class="fas fa-comment-dots"></i> Issue Description</div>
+                            <div class="bg-light p-3 rounded-pill px-4 mb-4" style="background: #f1f5f9 !important;">
+                                <p class="mb-0 italic text-dark" style="font-style: italic;">"{{ return.issue_description }}"</p>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="section-title-modern"><i class="fas fa-camera"></i> Claim Evidence</div>
+                            {% if return.photo %}
+                                <a href="{{ return.photo.url }}" target="_blank">
+                                    <img src="{{ return.photo.url }}" class="photo-preview">
+                                </a>
+                            {% else %}
+                                <div class="p-4 bg-light text-center rounded text-muted border border-dashed">No photo evidence</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 p-4">
+                    {% if return.return_status == 'pending' %}
+                    <form method="POST" action="{% url 'update_return_status' return.id %}" class="d-flex gap-3">
+                        {% csrf_token %}
+                        <button type="submit" name="status" value="rejected" class="btn btn-modern btn-outline-danger bg-white">
+                            <i class="fas fa-times-circle"></i> Reject Claim
+                        </button>
+                        <button type="submit" name="status" value="approved" class="btn btn-modern btn-action-approve">
+                            <i class="fas fa-check-circle"></i> Approve Return
+                        </button>
+                    </form>
+                    {% elif return.return_status == 'approved' %}
+                    <form method="POST" action="{% url 'update_return_status' return.id %}">
+                        {% csrf_token %}
+                        <button type="submit" name="status" value="completed" class="btn btn-modern btn-primary">
+                            <i class="fas fa-check-double"></i> Mark as Refunded/Completed
+                        </button>
+                    </form>
+                    {% endif %}
+                    <button type="button" class="btn btn-modern btn-action-view" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% else %}
+    <div class="text-center py-5 bg-white rounded-lg border">
+        <i class="fas fa-clipboard-check fa-4x mb-3 text-light"></i>
+        <h4 class="font-weight-bold">Clear as a Whistle!</h4>
+        <p class="text-secondary">No return requests found at this time.</p>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

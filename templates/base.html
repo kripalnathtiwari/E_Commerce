@@ -35,69 +35,20 @@
 {% endfor %}
 </script>
 {% endif %}
-<script type="text/javascript">
-/// some script
-
-// jquery ready start
-$(document).ready(function() {
-	$('.ajax-cart-form').on('submit', function(e) {
-        var $form = $(this);
-        var $clickedBtn = $(document.activeElement);
-        
-        // If it's a Buy Now click, allow normal form submission
-        if ($clickedBtn.attr('name') === 'buy_now' || $clickedBtn.val() === 'true') {
-            return true;
-        }
-
-        e.preventDefault();
-        
-        $.ajax({
-            url: $form.attr('action'),
-            method: 'POST',
-            data: $form.serialize(),
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    // Update cart count in navbar
-                    var $cartCount = $('#cart-count');
-                    $cartCount.text(response.cart_count);
-                    if (response.cart_count > 0) {
-                        $cartCount.show();
-                    } else {
-                        $cartCount.hide();
-                    }
-                    // Optional: Show message without redirect
-                    console.log(response.message);
-                    // alert(response.message); // Uncomment if you want an alert
-                } else {
-                    alert(response.message);
-                }
-            },
-            error: function(xhr) {
-                if (xhr.status === 403) {
-                    alert("Please login to add items to cart.");
-                    window.location.href = "{% url 'login' %}";
-                } else {
-                    alert('Something went wrong. Please try again.');
-                }
-            }
-        });
-    });
-}); 
-// jquery end
-</script>
 
 </head>
-<body>
+<body class="d-flex flex-column" style="min-height: 100vh;">
 
- <!-- section-header.// -->
+  <!-- section-header.// -->
 {% include 'includes/navbar.html'%}
 
-
+<div class="flex-grow-1">
 {% block content%}
 
 {% endblock %}
+</div>
 
 {% include "includes/footer.html" %}
+
+</body>
+</html>

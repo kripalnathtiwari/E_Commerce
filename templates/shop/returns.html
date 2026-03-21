@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3>My Returns</h3>
+
+    {% if returns %}
+    <div class="table-responsive mt-3">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Return ID</th>
+                    <th>Order ID</th>
+                    <th>Issue</th>
+                    <th>Status</th>
+                    <th>Submitted On</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for return in returns %}
+                <tr>
+                    <td>#{{ return.id }}</td>
+                    <td>#{{ return.order.id }}</td>
+                    <td>{{ return.issue_description|truncatewords:10 }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if return.return_status == 'pending' %}bg-warning
+                            {% elif return.return_status == 'approved' %}bg-success
+                            {% elif return.return_status == 'rejected' %}bg-danger
+                            {% elif return.return_status == 'completed' %}bg-info
+                            {% endif %}">
+                            {{ return.return_status|title }}
+                        </span>
+                    </td>
+                    <td>{{ return.created_at|date:"d M Y" }}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#returnModal{{ return.id }}">
+                            View Details
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Modal for Return Details -->
+                <div class="modal fade" id="returnModal{{ return.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-light">
+                                <h5 class="modal-title">Return Details - #{{ return.id }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <p><strong>Order ID:</strong> #{{ return.order.id }}</p>
+                                        <p><strong>Status:</strong> 
+                                            <span class="badge 
+                                                {% if return.return_status == 'pending' %}bg-warning
+                                                {% elif return.return_status == 'approved' %}bg-success
+                                                {% elif return.return_status == 'rejected' %}bg-danger
+                                                {% elif return.return_status == 'completed' %}bg-info
+                                                {% endif %}">
+                                                {{ return.return_status|title }}
+                                            </span>
+                                        </p>
+                                        <p><strong>Submitted:</strong> {{ return.created_at|date:"d M Y, H:i" }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Order Total:</strong> ₹{{ return.order.total_price }}</p>
+                                        <p><strong>Order Date:</strong> {{ return.order.created_at|date:"d M Y" }}</p>
+                                        <p><strong>Last Updated:</strong> {{ return.updated_at|date:"d M Y, H:i" }}</p>
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <div class="mb-3">
+                                    <h6>Issue Description:</h6>
+                                    <p class="bg-light p-3 rounded">{{ return.issue_description }}</p>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6>Issue Photo:</h6>
+                                    {% if return.photo %}
+                                    <div class="text-center">
+                                        <img src="{{ return.photo.url }}" style="max-width: 100%; max-height: 400px; border-radius: 5px; border: 2px solid #ddd; padding: 5px;">
+                                    </div>
+                                    {% else %}
+                                    <p class="text-muted">No photo uploaded</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <hr>
+    <div class="mt-3">
+        <a href="{% url 'user_orders' %}" class="btn btn-primary">Back to Orders</a>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-3">
+        You haven't submitted any return requests yet. Once your order is delivered, you can request a return within 7 days.
+    </div>
+    <a href="{% url 'user_orders' %}" class="btn btn-primary">View Orders</a>
+    {% endif %}
+
+</div>
+
+{% endblock %}

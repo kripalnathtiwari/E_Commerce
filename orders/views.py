@@ -129,6 +129,10 @@ def checkout(request, product_id):
             store_order_item.variations.set(product_variation)
             store_order_item.save()
 
+        # ---------- LINK PRINT ORDER TO STORE ORDER ITEM ----------
+        order.store_order_item = store_order_item
+        order.save()
+
         # ---------- SEND EMAIL ----------
         try:
             subject = f"Order Placed Successfully - Order #{store_order.id}"
@@ -168,6 +172,8 @@ def place_order(request, product_id):
 
     distributor = product.distributor
 
+    from store.models import Order as StoreOrder, OrderItem as StoreOrderItem
+    
     order = Order.objects.create(
         user=request.user,
         distributor=product.distributor,
@@ -184,6 +190,21 @@ def place_order(request, product_id):
         price=product.price
     )
 
+    # Sync with store app for returns to work
+    store_order = StoreOrder.objects.create(
+        user=request.user,
+        total=product.price
+    )
+    
+    StoreOrderItem.objects.create(
+        order=store_order,
+        product=store_p,
+        distributor=distributor,
+        quantity=1,
+        price=product.price,
+        status='Pending'
+    )
+
     return redirect('user_orders')
 
 # Removed duplicate distributor_orders function
@@ -194,11 +215,36 @@ def update_delivery_status(request, order_id):
     distributor = request.user.distributor_profile
     status = request.POST.get('status')
     
+    status_map = {
+        'pending': 'Pending',
+        'assigned': 'Confirmed',
+        'confirmed': 'Confirmed',
+        'shipped': 'Shipped',
+        'delivered': 'Delivered'
+    }
+
     # Try updating Standard Order
     try:
         order = Order.objects.get(id=order_id, distributor=distributor)
         order.delivery_status = status
         order.save()
+        
+        # Sync to Store OrderItem
+        from store.models import OrderItem as StoreOrderItem
+        # Find matching item by order user, product etc
+        # Since orders.models.Order can have multiple items, we update all matching ones
+        items = OrderItem.objects.filter(order=order)
+        for itm in items:
+            store_item = StoreOrderItem.objects.filter(
+                order__user=order.user,
+                product=itm.product,
+                quantity=itm.quantity,
+                price=itm.price
+            ).last()
+            if store_item:
+                store_item.status = status_map.get(status, 'Pending')
+                store_item.save()
+
     except Order.DoesNotExist:
         # Try updating Print Order
         try:
@@ -216,22 +262,14 @@ def update_delivery_status(request, order_id):
                 store_item = StoreOrderItem.objects.filter(
                     order__user=print_order.user,
                     product=print_order.product,
-                    quantity=print_order.quantity,
-                    status='Pending' # Try to find the one that is still pending
-                ).first()
+                    quantity=print_order.quantity
+                ).last()
                 if store_item:
                     # Link it for future updates
                     print_order.store_order_item = store_item
                     print_order.save()
 
             if store_item:
-                # Map 'pending', 'assigned', 'shipped', 'delivered' to 'Pending', 'Confirmed', 'Shipped', 'Delivered'
-                status_map = {
-                    'pending': 'Pending',
-                    'assigned': 'Confirmed',
-                    'shipped': 'Shipped',
-                    'delivered': 'Delivered'
-                }
                 store_item.status = status_map.get(status, 'Pending')
                 store_item.save()
                 
@@ -363,18 +401,37 @@ def distributor_orders(request):
     distributor = request.user.distributor_profile
     
     # Fetch Standard Orders
-    orders = Order.objects.filter(distributor=distributor).annotate(
+    orders = Order.objects.filter(distributor=distributor).prefetch_related('returns').annotate(
         order_date=TruncDate('created_at')
     ).order_by('-created_at')
     
     # Fetch Print/Custom Orders
-    print_orders = PrintOrder.objects.filter(distributor=distributor).annotate(
+    print_orders = PrintOrder.objects.filter(distributor=distributor).select_related(
+        'store_order_item__order'
+    ).prefetch_related(
+        'store_order_item__order__returns'
+    ).annotate(
         order_date=TruncDate('created_at')
     ).order_by('-created_at')
 
+    # Collect unique returns for modals using a dictionary to ensure uniqueness by ID
+    unique_returns = {}
+    
+    # Collect from standard orders
+    for o in orders:
+        for r in o.returns.all():
+            unique_returns[r.id] = r
+            
+    # Collect from print orders
+    for po in print_orders:
+        if po.store_order_item and po.store_order_item.order:
+            for r in po.store_order_item.order.returns.all():
+                unique_returns[r.id] = r
+
     return render(request, 'distributor/orders.html', {
         'orders': orders,
-        'print_orders': print_orders
+        'print_orders': print_orders,
+        'returns_to_show': unique_returns.values()
     })
 
 @login_required
@@ -457,3 +514,167 @@ def update_stock(request, product_id):
         product.save()
         
     return redirect(request.META.get('HTTP_REFERER', 'shop'))
+
+
+# ================= RETURN VIEWS =================
+
+@login_required
+def create_return(request, order_id):
+    """Create a return request for an order"""
+    from datetime import timedelta
+    from django.utils import timezone
+    from .models import Return
+    from store.models import Order, OrderItem
+    
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # Check if all items in order are delivered
+    from .models import Order as DistributorOrder, PrintOrder as DistributorPrintOrder
+    
+    # Robust check: Check if distributor app says it's delivered
+    distributor_delivered = False
+    
+    # Check if a linked PrintOrder is delivered
+    print_orders = DistributorPrintOrder.objects.filter(user=request.user, store_order_item__order=order)
+    if print_orders.exists():
+        distributor_delivered = all(po.delivery_status == 'delivered' for po in print_orders)
+    else:
+        # Check if a standard Order matches
+        standard_orders = DistributorOrder.objects.filter(user=request.user, total_price=order.total)
+        if standard_orders.exists():
+            distributor_delivered = all(so.delivery_status == 'delivered' for so in standard_orders)
+
+    # Check the store items directly as well
+    order_items = OrderItem.objects.filter(order=order)
+    if not order_items.exists():
+        messages.error(request, "Order has no items.")
+        return redirect('order_history')
+    
+    # Allow return if EITHER the store status OR the distributor status is delivered
+    store_delivered = all(item.status == 'Delivered' for item in order_items)
+    
+    if not (store_delivered or distributor_delivered):
+        messages.error(request, "Order must be fully delivered to create a return request.")
+        return redirect('order_history')
+    
+    # Check if return already exists for this order
+    if order.returns.filter(return_status__in=['pending', 'approved']).exists():
+        messages.warning(request, "A return request already exists for this order.")
+        return redirect('order_history')
+    
+    # Check if within 7 days
+    days_passed = (timezone.now() - order.created_at).days
+    if days_passed > 7:
+        messages.error(request, "Return window has expired. Returns are only available for 7 days after delivery.")
+        return redirect('order_history')
+    
+    if request.method == "POST":
+        issue_description = request.POST.get('issue_description')
+        photo = request.FILES.get('photo')
+        
+        if not issue_description:
+            messages.error(request, "Please describe the issue.")
+            return redirect('create_return', order_id=order_id)
+        
+        if not photo:
+            messages.error(request, "Please upload a photo of the issue.")
+            return redirect('create_return', order_id=order_id)
+        
+        # Create return request
+        return_obj = Return.objects.create(
+            order=order,
+            user=request.user,
+            issue_description=issue_description,
+            photo=photo,
+            return_status='pending'
+        )
+        
+        messages.success(request, "Return request created successfully. Our team will review it shortly.")
+        return redirect('order_history')
+    
+    return render(request, 'shop/create_return.html', {
+        'order': order,
+        'days_remaining': 7 - days_passed
+    })
+
+
+@login_required
+def view_returns(request):
+    """View all returns for current user"""
+    from .models import Return
+    
+    returns = Return.objects.filter(user=request.user).order_by('-created_at')
+    
+    return render(request, 'shop/returns.html', {
+        'returns': returns
+    })
+
+
+@login_required
+def distributor_returns(request):
+    """View all returns for distributor's orders"""
+    from .models import Return
+    from store.models import OrderItem
+    
+    try:
+        distributor = request.user.distributor_profile
+    except:
+        messages.error(request, "You are not a distributor.")
+        return redirect('shop')
+    
+    # Get all orders that contain items from this distributor
+    distributor_order_items = OrderItem.objects.filter(distributor=distributor)
+    distributor_orders = set(item.order for item in distributor_order_items)
+    
+    returns = Return.objects.filter(
+        order__in=list(distributor_orders)
+    ).order_by('-created_at')
+    
+    # Calculate summary counts for the dashboard
+    pending_count = returns.filter(return_status='pending').count()
+    approved_count = returns.filter(return_status='approved').count()
+    completed_count = returns.filter(return_status='completed').count()
+    
+    return render(request, 'distributor/returns.html', {
+        'returns': returns,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'completed_count': completed_count
+    })
+
+
+@login_required
+def update_return_status(request, return_id):
+    """Update return status (approve/reject)"""
+    from .models import Return
+    from store.models import OrderItem
+    
+    try:
+        distributor = request.user.distributor_profile
+    except:
+        messages.error(request, "You are not a distributor.")
+        return redirect('shop')
+    
+    return_obj = get_object_or_404(Return, id=return_id)
+    
+    # Check if distributor has items in this order
+    distributor_items = OrderItem.objects.filter(
+        order=return_obj.order,
+        distributor=distributor
+    )
+    
+    if not distributor_items.exists():
+        messages.error(request, "You don't have permission to update this return.")
+        return redirect('distributor_returns')
+    
+    if request.method == "POST":
+        new_status = request.POST.get('status')
+        
+        if new_status in ['approved', 'rejected', 'completed']:
+            return_obj.return_status = new_status
+            return_obj.save()
+            
+            action_text = "approved" if new_status == 'approved' else "rejected" if new_status == 'rejected' else "completed"
+            messages.success(request, f"Return request {action_text} successfully.")
+        
+    return redirect('distributor_returns')

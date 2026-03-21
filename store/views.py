@@ -276,6 +276,7 @@ def checkout(request):
             order_item = OrderItem.objects.create(
                 order=store_order,
                 product=product,
+                distributor=product.distributor, # ADDED
                 quantity=item.quantity,
                 price=product.price if product.stock > 0 else 0
             )
@@ -389,6 +390,7 @@ def payment(request):
             order_item = OrderItem.objects.create(
                 order=store_order,
                 product=product,
+                distributor=product.distributor, # ADDED
                 quantity=item.quantity,
                 price=product.price if product.stock > 0 else 0
             )

@@ -2,9 +2,15 @@
 /* ==== BASE STYLES ====*/
 /* ==================== GLOBAL STYLES ======================= */
 @import url("https://rsms.me/inter/inter.css");
-html {
+html, body {
+  height: 100%;
+}
+
+body {
   font-family: "Inter", sans-serif;
-  font-size: 15px;
+  font-size: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ========================
@@ -140,13 +146,8 @@ a:hover {
 }
 
 .hover-bg:hover {
-  background: #3167eb;
-  /* For browsers that do not support gradients */
-  /* For Safari 5.1 to 6.0 */
-  /* For Opera 11.1 to 12.0 */
-  /* For Firefox 3.6 to 15 */
-  background: linear-gradient(to bottom right, #3167eb, #3167eb);
-  /* Standard syntax */
+  background: #0066ff;
+  background: linear-gradient(to bottom right, #0066ff, #0052cc);
   transition: 0.5s;
 }
 
@@ -256,7 +257,7 @@ article:after,
 }
 
 .bg-blue {
-  background-color: #3167eb;
+  background-color: #0066ff;
 }
 
 .bg-red {

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">Request Return</h4>
+                </div>
+                <div class="card-body">
+                    
+                    <!-- Order Details -->
+                    <div class="alert alert-info">
+                        <h6>Order Details</h6>
+                        <p class="mb-0"><strong>Order ID:</strong> #{{ order.id }}</p>
+                        <p class="mb-0"><strong>Total Amount:</strong> ₹{{ order.total_price }}</p>
+                        <p class="mb-0"><strong>Order Date:</strong> {{ order.created_at|date:"d M Y, H:i" }}</p>
+                        <p class="mb-0"><strong>Days Remaining for Return:</strong> 
+                            <span class="badge bg-warning">{{ days_remaining }} days</span>
+                        </p>
+                    </div>
+
+                    <!-- Return Form -->
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Issue Description -->
+                        <div class="mb-3">
+                            <label for="issue_description" class="form-label">
+                                <strong>Describe the Issue *</strong>
+                            </label>
+                            <textarea 
+                                class="form-control" 
+                                id="issue_description" 
+                                name="issue_description" 
+                                rows="4" 
+                                placeholder="Please describe what you're returning and why. For example: Product is damaged, wrong size, defective, etc."
+                                required>
+                            </textarea>
+                            <small class="form-text text-muted">Be as detailed as possible to help us process your return quickly.</small>
+                        </div>
+
+                        <!-- Photo Upload -->
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">
+                                <strong>Upload Photo of the Issue *</strong>
+                            </label>
+                            <div class="input-group">
+                                <input 
+                                    type="file" 
+                                    class="form-control" 
+                                    id="photo" 
+                                    name="photo" 
+                                    accept="image/*"
+                                    required>
+                            </div>
+                            <small class="form-text text-muted">Upload a clear photo showing the defect or issue. Maximum file size: 5MB. Supported formats: JPG, PNG, GIF.</small>
+                            
+                            <!-- Image Preview -->
+                            <div id="preview" class="mt-3"></div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                <i class="fa fa-check"></i> Submit Return Request
+                            </button>
+                            <a href="{% url 'user_orders' %}" class="btn btn-secondary btn-lg">
+                                <i class="fa fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- Info Box -->
+                    <div class="alert alert-light mt-4 border" role="alert">
+                        <h6 class="alert-heading">Return Policy</h6>
+                        <ul class="mb-0">
+                            <li>Returns are accepted within <strong>7 days</strong> of delivery</li>
+                            <li>Please provide clear photos showing the issue</li>
+                            <li>Our team will review your request within <strong>24-48 hours</strong></li>
+                            <li>Once approved, you'll receive instructions for return shipping</li>
+                            <li>Refunds will be processed after we receive and verify the product</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Preview Script -->
+<script>
+    document.getElementById('photo').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('preview');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <div class="mt-2">
+                        <img src="${e.target.result}" style="max-width: 300px; max-height: 300px; border-radius: 5px; border: 2px solid #ddd; padding: 5px;">
+                        <p class="mt-2 text-muted">
+                            <strong>File size:</strong> ${(file.size / 1024).toFixed(2)} KB<br>
+                            <strong>File type:</strong> ${file.type}
+                        </p>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.innerHTML = '';
+        }
+    });
+</script>
+
+<style>
+    .card {
+        border-radius: 10px;
+        border: none;
+    }
+    
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+    
+    .form-control:focus {
+        border-color: #ffc107;
+        box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+    }
+</style>
+
+{% endblock %}

@@ -1,6 +1,7 @@
 from django.db import models
 from category.models import Category
 from django.conf import settings
+import uuid
 
 
 class Product(models.Model):
@@ -105,7 +106,7 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="store_order_items")
     distributor = models.ForeignKey(
         "orders.Distributor",
@@ -120,14 +121,20 @@ class OrderItem(models.Model):
         ('Delivered', 'Delivered'),
         ('Cancelled', 'Cancelled'),
     )
+    item_id = models.CharField(max_length=20, unique=True, editable=False, null=True)
     quantity = models.IntegerField()
     price = models.IntegerField()
     status = models.CharField(max_length=20, choices=STATUS, default='Pending')
     updated_at = models.DateTimeField(auto_now=True)
     variations = models.ManyToManyField(Variation, blank=True, related_name="store_variations")
 
+    def save(self, *args, **kwargs):
+        if not self.item_id:
+            self.item_id = 'ITM-' + str(uuid.uuid4()).upper()[:8]
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"Order #{self.order.id} - {self.product.product_name}"
+        return f"Item {self.item_id} - {self.product.product_name}"
 
 
 class ReviewRating(models.Model):

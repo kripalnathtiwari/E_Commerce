@@ -1,246 +1,377 @@
 {% load static %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
+    :root {
+        --nav-bg: rgba(255, 255, 255, 0.85);
+        --accent-primary: #0066ff;
+        --accent-secondary: #0052cc;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --glass-border: rgba(255, 255, 255, 0.2);
+        --shadow-soft: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
     .section-header {
-        background: #f4f6f9;
-        /* slightly darker */
-        box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+        font-family: 'Inter', sans-serif;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--nav-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: var(--shadow-soft);
     }
 
-    /* NAVBAR */
-    .navbar {
-        font-size: 14px;
-        background: #eef1f5 !important;
-    }
-
-    /* MAIN HEADER */
-    .header-main {
+    /* Top Bar - Minimalist */
+    .top-bar-minimal {
+        background: rgba(15, 23, 42, 0.03);
         padding: 10px 0;
-        background: #f4f6f9;
+        font-size: 14.5px;
+        font-weight: 500;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.5);
     }
 
-    /* LOGO */
+    .top-bar-minimal .nav-link {
+        color: var(--text-muted);
+        padding: 0 12px;
+        transition: var(--transition-base);
+    }
+
+    .top-bar-minimal .nav-link:hover {
+        color: var(--accent-primary);
+    }
+
+    /* Main Header */
+    .header-main {
+        padding: 16px 0;
+    }
+
     .brand-wrap img {
-        height: 42px;
-        transition: .3s;
+        height: 38px;
+        width: auto;
+        transition: var(--transition-base);
     }
 
-    .brand-wrap img:hover {
-        transform: scale(1.03);
+    .brand-wrap:hover img {
+        transform: translateY(-1px);
     }
 
-    /* CATEGORY BUTTON - FIXED SIZE */
-    .category-wrap .btn {
-        height: 42px;
-        min-width: 140px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 500;
-        border-radius: 8px;
-        background: #3a66db;
-        border: none;
-    }
-
-    /* STORE BUTTON */
-    .btn-outline-primary {
-        height: 42px;
+    /* Category & Store Buttons */
+    .btn-nav-pill {
+        height: 48px;
+        border-radius: 12px;
         padding: 0 20px;
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        border-radius: 8px;
+        gap: 10px;
+        font-weight: 600;
+        font-size: 16px;
+        transition: var(--transition-base);
+        border: 1px solid transparent;
     }
 
-    /* SEARCH */
-    .search input {
-        height: 42px;
-        border-radius: 8px 0 0 8px;
-        background: #fff;
+    .btn-categories {
+        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
     }
 
-    .search button {
-        height: 42px;
-        border-radius: 0 8px 8px 0;
-        background: #3a66db;
+    .btn-categories:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(79, 70, 229, 0.35);
+    }
+
+    .btn-store-outline {
+        background: white;
+        border-color: #e2e8f0;
+        color: var(--text-main);
+    }
+
+    .btn-store-outline:hover {
+        background: #f8fafc;
+        border-color: var(--accent-primary);
+        color: var(--accent-primary);
+        transform: translateY(-2px);
+    }
+
+    /* Search Bar - Modern */
+    .search-container {
+        position: relative;
+        max-width: 500px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .search-input-modern {
+        width: 100%;
+        height: 48px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 0 50px 0 20px;
+        font-size: 16px;
+        color: var(--text-main);
+        transition: var(--transition-base);
+    }
+
+    .search-input-modern:focus {
+        background: white;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        outline: none;
+    }
+
+    .search-btn-modern {
+        position: absolute;
+        right: 6px;
+        top: 6px;
+        width: 32px;
+        height: 32px;
+        background: var(--accent-primary);
+        color: white;
         border: none;
-    }
-
-    /* ACCOUNT */
-    .widget-header small {
-        font-size: 13px;
-        color: #6c757d;
-    }
-
-    .widget-header a {
-        font-weight: 500;
-        color: #2d2d2d;
-    }
-
-    /* CART ICON */
-    .icon {
-        background: #e9edf3;
-        height: 42px;
-        width: 42px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: var(--transition-base);
+    }
+
+    .search-btn-modern:hover {
+        background: var(--accent-secondary);
+        transform: scale(1.05);
+    }
+
+    /* Widgets - Account & Cart */
+    .widget-container {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .account-widget {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 4px 4px 4px 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 99px;
+        transition: var(--transition-base);
+        text-decoration: none !important;
+    }
+
+    .account-widget:hover {
+        background: white;
+        border-color: var(--accent-primary);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .account-info {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+
+    .account-welcome {
+        font-size: 11px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .account-name {
+        font-size: 15.5px;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    .account-avatar {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 12px;
+    }
+
+    /* Cart Widget */
+    .cart-widget {
         position: relative;
+        width: 44px;
+        height: 44px;
+        background: #f1f5f9;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        transition: var(--transition-base);
+        text-decoration: none !important;
+    }
+
+    .cart-widget:hover {
+        background: #0066ff;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .cart-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: #ef4444;
+        color: white;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 20px;
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Dropdown Overrides */
+    .dropdown-menu {
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 8px;
+        margin-top: 12px !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border: none;
+        overflow: hidden;
+    }
+
+    .dropdown-item {
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-weight: 500;
+        font-size: 14px;
+        transition: var(--transition-base);
+    }
+
+    .dropdown-item:hover {
+        background: #f8fafc;
+        color: var(--accent-primary);
+        padding-left: 20px;
+    }
+
+    @media (max-width: 991px) {
+        .search-container { margin: 15px 0; }
+        .widget-container { justify-content: center; margin-top: 15px; }
     }
 </style>
 
 <header class="section-header">
 
     <!-- TOP BAR -->
-    <nav class="navbar navbar-expand-sm navbar-light border-bottom bg-white">
-        <div class="container">
-
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTop4">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarTop4">
-
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">English</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">India</a>
-                    </li>
-                </ul>
-
-                <ul class="navbar-nav align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'contact' %}">
-                            <i class="fa fa-headphones"></i> Contact
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link"><i class="fa fa-envelope"></i> Email</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link"><i class="fa fa-phone"></i> Call us</a>
-                    </li>
-                </ul>
-
+    <div class="top-bar-minimal d-none d-md-block">
+        <div class="container d-flex justify-content-between">
+            <div class="d-flex">
+                <a href="#" class="nav-link"><i class="fas fa-globe-americas mr-1"></i> English</a>
+                <a href="#" class="nav-link"><i class="fas fa-map-marker-alt mr-1"></i> India</a>
+            </div>
+            <div class="d-flex">
+                <a href="{% url 'contact' %}" class="nav-link"><i class="fas fa-headset mr-1"></i> Help Center</a>
+                <a href="#" class="nav-link"><i class="fas fa-envelope mr-1"></i> Support</a>
             </div>
         </div>
-    </nav>
-
+    </div>
 
     <!-- MAIN HEADER -->
-    <section class="header-main border-bottom">
+    <section class="header-main">
         <div class="container">
-
             <div class="row align-items-center">
 
-                <!-- LOGO -->
+                <!-- Logo -->
                 <div class="col-lg-2 col-md-3 col-6">
                     <a href="/" class="brand-wrap">
-                        <img src="{% static 'images/logo.png' %}" alt="Logo" style="height:42px;">
+                        <img src="{% static 'images/logo.png' %}" alt="Logo">
                     </a>
                 </div>
 
-                <!-- CATEGORY BUTTON -->
-                <div class="col-lg col-md col-sm col-4 flex-grow-0">
-                    <div class="category-wrap dropdown d-inline-block">
-
-                        <a href="{% url 'all_categories' %}" class="btn btn-primary">
-                            <i class="fa fa-bars"></i> Categories
-                        </a>
-
-
-
-                        <div class="dropdown-menu shadow-sm">
-
+                <!-- Navigation Links (Categories & Store) -->
+                <div class="col-lg-3 col-md-4 d-none d-lg-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button class="btn-nav-pill btn-categories dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fas fa-th-large"></i> Categories
+                        </button>
+                        <div class="dropdown-menu">
                             <a class="dropdown-item font-weight-bold text-primary" href="{% url 'all_categories' %}">
-                                View All Categories
+                                <i class="fas fa-layer-group mr-2"></i> All Categories
                             </a>
-
                             <div class="dropdown-divider"></div>
-
                             {% for cat in menu_categories %}
-                            <a class="dropdown-item" href="{{ cat.get_url }}">
-                                {{ cat.category_name }}
-                            </a>
+                                <a class="dropdown-item" href="{{ cat.get_url }}">{{ cat.category_name }}</a>
                             {% empty %}
-                            <a class="dropdown-item text-muted">No categories</a>
+                                <a class="dropdown-item text-muted">No categories</a>
                             {% endfor %}
-
                         </div>
                     </div>
-                </div>
-
-                <!-- STORE BUTTON -->
-                <div class="col-auto">
-                    <a href="{% url 'store' %}" class="btn btn-outline-primary">
-                        Store
+                    
+                    <a href="{% url 'store' %}" class="btn-nav-pill btn-store-outline text-decoration-none">
+                        <i class="fas fa-shopping-bag"></i> Store
                     </a>
                 </div>
 
-                <!-- SEARCH -->
-                <div class="col-lg col-md-6 col-sm-12">
-                    <form action="{% url 'search' %}" class="search" method="GET">
-                        <div class="input-group w-100">
-                            <input type="text" class="form-control" placeholder="Search products" name="keyword">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="submit">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
+                <!-- Search -->
+                <div class="col-lg-4 col-md-6 order-3 order-lg-2">
+                    <form action="{% url 'search' %}" class="search-container" method="GET">
+                        <input type="text" class="search-input-modern" placeholder="Search products, brands..." name="keyword">
+                        <button class="search-btn-modern" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </form>
                 </div>
 
-                <!-- ACCOUNT + CART -->
-                <div class="col-lg-3 col-sm-6 col-8">
-
-                    <div class="d-flex justify-content-end align-items-center">
-
-                        <div class="widget-header mr-3">
-
-                            {% if user.is_authenticated %}
-                            <small class="text-muted">Welcome {{ user.username }}</small>
-                            <div>
-                                <a href="{% url 'order_history' %}">My Orders</a>
-                                <span class="mx-1">|</span>
-                                <a href="{% url 'logout' %}">Logout</a>
+                <!-- Actions -->
+                <div class="col-lg-3 col-md-3 col-6 order-2 order-lg-3">
+                    <div class="widget-container justify-content-end">
+                        
+                        <!-- Account Widget -->
+                        <div class="dropdown">
+                            <a href="#" class="account-widget dropdown-toggle" data-toggle="dropdown" id="accountDropdown">
+                                <div class="account-info d-none d-sm-flex text-right">
+                                    <span class="account-welcome">Welcome</span>
+                                    <span class="account-name">{% if user.is_authenticated %}{{ user.first_name|default:user.username }}{% else %}Guest{% endif %}</span>
+                                </div>
+                                <div class="account-avatar">
+                                    {% if user.is_authenticated %}{{ user.username|first|upper }}{% else %}<i class="fas fa-user"></i>{% endif %}
+                                </div>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right mt-2 shadow-lg" aria-labelledby="accountDropdown">
+                                {% if user.is_authenticated %}
+                                    <div class="px-4 py-2 mb-2 border-bottom d-sm-none">
+                                        <div class="font-weight-bold">{{ user.get_full_name }}</div>
+                                        <div class="small text-muted">{{ user.email }}</div>
+                                    </div>
+                                    <a class="dropdown-item" href="{% url 'order_history' %}"><i class="fas fa-box mr-2"></i> My Orders</a>
+                                    <a class="dropdown-item" href="{% url 'view_returns' %}"><i class="fas fa-undo mr-2"></i> My Returns</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+                                {% else %}
+                                    <a class="dropdown-item font-weight-bold text-primary" href="{% url 'login' %}">Sign In</a>
+                                    <a class="dropdown-item" href="{% url 'signup' %}">Create Account</a>
+                                {% endif %}
                             </div>
-                            {% else %}
-                            <small class="text-muted">Welcome guest!</small>
-                            <div>
-                                <a href="{% url 'login' %}">Sign in</a>
-                                <span class="mx-1">|</span>
-                                <a href="{% url 'signup' %}">Register</a>
-                            </div>
-                            {% endif %}
-
                         </div>
 
-                        <a href="{% url 'cart' %}" class="widget-header position-relative">
-
-                            <div class="icon icon-sm rounded-circle border">
-                                <i class="fa fa-shopping-cart"></i>
-                            </div>
-
-                            <span id="cart-count" style="
-        position:absolute;
-        top:-5px;
-        right:-5px;
-        background:#dc3545;
-        color:#fff;
-        font-size:11px;
-        padding:3px 7px;
-        border-radius:50%;
-        font-weight:600;
-        {% if cart_count == 0 %}display:none;{% endif %}">
+                        <!-- Cart Widget -->
+                        <a href="{% url 'cart' %}" class="cart-widget">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span id="cart-count" class="cart-badge" {% if cart_count == 0 %}style="display:none;"{% endif %}>
                                 {{ cart_count }}
                             </span>
-
                         </a>
 
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
