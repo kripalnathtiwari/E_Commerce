@@ -2,72 +2,509 @@
 {% load static %}
 {% block content %}
 
-<section class="section-intro padding-y-sm">
-	<div class="container">
+<style>
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
 
-		<div class="intro-banner-wrap">
-			<img src="{% static 'images/banners/1.jpg' %}" class="img-fluid rounded w-100">
-		</div>
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" fill-opacity="1" d="M0,64L48,80C96,96,192,128,288,128C384,128,480,96,576,90.7C672,85,768,107,864,112C960,117,1056,107,1152,101.3C1248,96,1344,96,1392,96L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+        background-size: cover;
+    }
 
-	</div>
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .hero-section h1 {
+        font-size: 48px;
+        font-weight: 800;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .hero-section p {
+        font-size: 18px;
+        margin-bottom: 30px;
+        opacity: 0.95;
+    }
+
+    .hero-btn {
+        background: white;
+        color: #667eea;
+        padding: 12px 40px;
+        border-radius: 50px;
+        font-weight: 700;
+        display: inline-block;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .hero-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        color: #764ba2;
+    }
+
+    /* Features Section */
+    .features-section {
+        background: #f8f9fa;
+        padding: 60px 0;
+    }
+
+    .feature-card {
+        text-align: center;
+        padding: 30px;
+        border-radius: 10px;
+        background: white;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .feature-icon {
+        font-size: 40px;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .feature-card h5 {
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .feature-card p {
+        color: #666;
+        font-size: 14px;
+    }
+
+    /* Category Section */
+    .category-section {
+        padding: 60px 0;
+        background: white;
+    }
+
+    .category-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+        height: 200px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .category-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .category-card:hover img {
+        transform: scale(1.1);
+    }
+
+    .category-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(102, 126, 234, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .category-card:hover .category-overlay {
+        opacity: 1;
+    }
+
+    .category-name {
+        color: white;
+        font-size: 22px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    /* Product Section */
+    .products-section {
+        padding: 60px 0;
+        background: #f8f9fa;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .section-header h2 {
+        font-size: 36px;
+        font-weight: 800;
+        color: #333;
+        margin-bottom: 10px;
+        position: relative;
+        display: inline-block;
+    }
+
+    .section-header h2::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 2px;
+    }
+
+    .section-header p {
+        color: #666;
+        font-size: 16px;
+        margin-top: 20px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #e9ecef;
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+
+    .product-image-wrap {
+        position: relative;
+        overflow: hidden;
+        height: 250px;
+        background: #f0f0f0;
+    }
+
+    .product-image-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image-wrap img {
+        transform: scale(1.1);
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .product-info {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-category {
+        color: #667eea;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .product-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+        line-height: 1.4;
+        min-height: 40px;
+    }
+
+    .product-price {
+        font-size: 24px;
+        font-weight: 800;
+        color: #667eea;
+        margin-bottom: 10px;
+    }
+
+    .product-rating {
+        color: #ffc107;
+        font-size: 13px;
+        margin-bottom: 15px;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .product-actions .btn {
+        flex: 1;
+        padding: 10px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-add-cart {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-add-cart:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-buy {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-buy:hover {
+        background: #218838;
+        transform: translateY(-2px);
+    }
+
+    /* See All Button */
+    .see-all-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 10px 30px;
+        border-radius: 50px;
+        font-weight: 700;
+        display: inline-block;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .see-all-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    /* Stats Section */
+    .stats-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+    }
+
+    .stat-item {
+        padding: 30px;
+    }
+
+    .stat-number {
+        font-size: 42px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .stat-label {
+        font-size: 16px;
+        opacity: 0.9;
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Shop Your Favorite Products</h1>
+            <p>Discover an amazing collection of quality products with the best prices and fastest delivery.</p>
+            <a href="{% url 'store' %}" class="hero-btn">Start Shopping Now</a>
+        </div>
+    </div>
 </section>
 
-<section class="section-name padding-y-sm">
-	<div class="container">
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 col-sm-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <h5>Fast Shipping</h5>
+                    <p>Get your orders delivered quickly to your doorstep</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h5>Secure Payment</h5>
+                    <p>Your payment information is safe with us</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-undo"></i>
+                    </div>
+                    <h5>Easy Returns</h5>
+                    <p>30-day money-back guarantee on all products</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h5>24/7 Support</h5>
+                    <p>Our customer support is always ready to help</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-		<header class="section-heading">
-			<a href="./store.html" class="btn btn-outline-primary float-right">See all</a>
-			<h3 class="section-title">Popular products</h3>
-		</header>
+<!-- Products Section -->
+<section class="products-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Popular Products</h2>
+            <p>Explore our best-selling items</p>
+        </div>
 
-		<div class="row">
+        <div class="row">
+            {% for product in products %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="product-card">
+                    <div class="product-image-wrap">
+                        <a href="{% url 'product_detail' product.id %}">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.product_name }}">
+                            {% else %}
+                            <img src="{% static 'images/default-product.png' %}" alt="Default">
+                            {% endif %}
+                        </a>
+                        <span class="product-badge">Popular</span>
+                    </div>
 
-			{% for product in products %}
-			<div class="col-md-3">
-				<div class="card card-product-grid">
+                    <div class="product-info">
+                        <div class="product-category">
+                            {% if product.category %}
+                            {{ product.category.category_name }}
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'product_detail' product.id %}" class="product-title" style="text-decoration: none; color: inherit;">
+                            {{ product.product_name }}
+                        </a>
+                        
+                        <div class="product-price">₹{{ product.price }}</div>
+                        
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
 
-					<a href="{% url 'product_detail' product.id %}" class="img-wrap">
+                        <div class="product-actions">
+                            <form action="{% url 'add_to_cart' product.id %}" method="POST" class="ajax-cart-form w-100">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-add-cart w-100">
+                                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
 
-						{% if product.image %}
-						<img src="{{ product.image.url }}" class="img-fluid">
-						{% else %}
-						<img src="{% static 'images/default-product.png' %}" class="img-fluid">
-						{% endif %}
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="{% url 'store' %}" class="see-all-btn">See All Products</a>
+        </div>
+    </div>
+</section>
 
-					</a>
-
-					<figcaption class="info-wrap">
-
-						<a href="{% url 'product_detail' product.id %}" class="title">
-							{{ product.product_name }}
-						</a>
-
-						<div class="price mt-1">
-							₹{{ product.price }}
-						</div>
-
-						<div class="mt-2">
-							<form action="{% url 'add_to_cart' product.id %}" method="POST" class="ajax-cart-form d-inline">
-								{% csrf_token %}
-								<button type="submit" class="btn btn-sm btn-primary add-to-cart-btn">
-									Add to Cart
-								</button>
-							</form>
-							<a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-success">
-								Buy Now
-							</a>
-						</div>
-
-
-					</figcaption>
-
-				</div>
-			</div>
-			{% endfor %}
-
-		</div>
-
-	</div>
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-item">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Products</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-item">
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-label">Happy Customers</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-item">
+                    <div class="stat-number">100+</div>
+                    <div class="stat-label">Sellers</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Support</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 {% endblock %}

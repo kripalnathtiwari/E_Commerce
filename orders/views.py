@@ -12,6 +12,7 @@ from store.models import Order as StoreOrder
 from store.models import OrderItem as StoreOrderItem
 from django.contrib import messages
 from store.models import Variation
+from store.models import ProductImage
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -342,6 +343,10 @@ def add_product(request):
         colors = request.POST.get('colors')
         sizes = request.POST.get('sizes')
 
+        # Get additional images and their colors
+        additional_images = request.FILES.getlist('additional_images')
+        image_colors = request.POST.getlist('image_colors')
+
         # ---------- CHECK IF PRODUCT ALREADY EXISTS ----------
         product = Product.objects.filter(
             distributor=distributor,
@@ -387,6 +392,23 @@ def add_product(request):
 
         save_variations(product, 'color', colors)
         save_variations(product, 'size', sizes)
+
+        # ---------- SAVE ADDITIONAL IMAGES ----------
+        if additional_images:
+            for img_file, color_name in zip(additional_images, image_colors):
+                if color_name.strip():
+                    # Find the color variation
+                    color_variation = Variation.objects.filter(
+                        product=product,
+                        variation_category='color',
+                        variation_value=color_name.strip()
+                    ).first()
+                    if color_variation:
+                        ProductImage.objects.create(
+                            product=product,
+                            variation=color_variation,
+                            image=img_file
+                        )
 
         return redirect('distributor_dashboard')
 

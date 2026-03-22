@@ -12,7 +12,7 @@
                 <aside class="col-md-6">
                     <article class="gallery-wrap">
                         <div class="img-big-wrap">
-                            <center><img src="{{ product.image.url }}" style="max-height: 500px; max-width: 100%;">
+                            <center><img id="product-image" src="{{ product.image.url }}" style="max-height: 500px; max-width: 100%;">
                             </center>
                         </div> <!-- img-big-wrap.// -->
 
@@ -115,7 +115,7 @@
                                 <div class="variation-selector">
                                     {% for i in product.colors %}
                                     <div class="variation-item">
-                                        <input type="radio" name="color" value="{{ i.variation_value | lower }}"
+                                        <input type="radio" name="color" value="{{ i.variation_value }}"
                                             id="color-{{ forloop.counter }}" required
                                             onchange="document.getElementById('color-name').innerText = '{{ i.variation_value | capfirst }}'">
                                         <label class="variation-label" for="color-{{ forloop.counter }}">
@@ -137,7 +137,7 @@
                                 <div class="variation-selector">
                                     {% for i in product.sizes %}
                                     <div class="variation-item">
-                                        <input type="radio" name="size" value="{{ i.variation_value | lower }}"
+                                        <input type="radio" name="size" value="{{ i.variation_value }}"
                                             id="size-{{ forloop.counter }}" required>
                                         <label class="variation-label" for="size-{{ forloop.counter }}">
                                             {{ i.variation_value | capfirst }}
@@ -253,32 +253,107 @@
 
         <br>
         {% if related_products %}
-        <header class="section-heading-custom mt-5">
-            <h3 class="mb-4 text-center">You May Also Like</h3>
-        </header>
+        <div class="mt-5">
+            <div class="section-header" style="text-align: center; margin-bottom: 50px;">
+                <h2 style="font-size: 28px; font-weight: 800; color: #333; margin-bottom: 10px;">You May Also Like</h2>
+                <div style="width: 60px; height: 4px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 0 auto; border-radius: 2px;"></div>
+            </div>
 
-        <div class="row">
-            {% for rel_product in related_products %}
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div class="card card-product-grid shadow-sm h-100 border-0">
-                    <a href="{% url 'product_detail' rel_product.id %}" class="img-wrap">
-                        {% if rel_product.image %}
-                        <img src="{{ rel_product.image.url }}" class="card-img-top rounded"
-                            style="height: 200px; object-fit: cover; transition: 0.3s; transform-origin: center;">
-                        {% endif %}
-                    </a>
-                    <div class="card-body text-center p-3 d-flex flex-column">
-                        <a href="{% url 'product_detail' rel_product.id %}"
-                            class="title text-dark fw-bold text-decoration-none mb-2">{{ rel_product.product_name }}</a>
-                        <div class="price h6 text-primary mt-auto">₹ {{ rel_product.price }}</div>
+            <div class="row">
+                {% for rel_product in related_products %}
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="product-card" style="background: white; border-radius: 10px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.08); height: 100%; display: flex; flex-direction: column; border: 1px solid #e9ecef;" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 15px 30px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.08)'">
+                        <div class="product-image-wrap" style="position: relative; overflow: hidden; height: 200px; background: #f0f0f0;">
+                            <a href="{% url 'product_detail' rel_product.id %}">
+                                {% if rel_product.image %}
+                                <img src="{{ rel_product.image.url }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                {% else %}
+                                <img src="{% static 'images/default-product.png' %}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                {% endif %}
+                            </a>
+                            {% if rel_product.stock <= 0 %}
+                            <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">Out of Stock</span>
+                            {% elif rel_product.stock < 5 %}
+                            <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">Only {{ rel_product.stock }} left</span>
+                            {% else %}
+                            <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">In Stock</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-info" style="padding: 20px; flex-grow: 1; display: flex; flex-direction: column;">
+                            <div class="product-category" style="color: #667eea; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">
+                                {% if rel_product.category %}
+                                {{ rel_product.category.category_name }}
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'product_detail' rel_product.id %}" class="product-title" style="font-size: 16px; font-weight: 700; color: #333; margin-bottom: 10px; line-height: 1.4; text-decoration: none;">
+                                {{ rel_product.product_name }}
+                            </a>
+
+                            <div class="product-price" style="font-size: 20px; font-weight: 800; color: #667eea; margin-bottom: 10px;">₹{{ rel_product.price }}</div>
+
+                            <div class="product-rating" style="color: #ffc107; font-size: 13px; margin-bottom: 15px;">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+
+                            {% if rel_product.stock > 0 %}
+                            <div class="product-actions" style="display: flex; gap: 10px; margin-top: auto;">
+                                <form action="{% url 'add_to_cart' rel_product.id %}" method="POST" class="ajax-cart-form" style="flex: 1;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-add-cart" style="width: 100%; padding: 10px 12px; font-size: 13px; font-weight: 600; border-radius: 5px; transition: all 0.3s ease; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <button class="btn btn-secondary" style="width: 100%; padding: 10px 12px; font-size: 13px; font-weight: 600; border-radius: 5px; border: none;" disabled>
+                                <i class="fas fa-times-circle"></i> Out of Stock
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
         {% endif %}
 
     </div> <!-- container .//  -->
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const colorRadios = document.querySelectorAll('input[name="color"]');
+    const productImage = document.getElementById('product-image');
+
+    colorRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            const selectedColor = this.value;
+            // Get the image URL for the selected color
+            // We'll use a data attribute or make an AJAX call
+            // For now, let's assume we have the images available
+            updateProductImage(selectedColor);
+        });
+    });
+
+    function updateProductImage(color) {
+        // This would ideally make an AJAX call to get the image URL
+        // For simplicity, we'll construct the URL or use a mapping
+        // Since we don't have the mapping here, let's make a simple AJAX call
+        fetch(`/store/get_image_for_color/{{ product.id }}/${color}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.image_url) {
+                    productImage.src = data.image_url;
+                }
+            })
+            .catch(error => console.log('Error fetching image:', error));
+    }
+});
+</script>
 
 {% endblock %}

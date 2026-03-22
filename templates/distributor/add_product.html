@@ -31,12 +31,12 @@
         <!-- 📷 CATEGORY IMAGE -->
         <input type="file" name="new_category_image" class="form-control mb-3">
 
-        <input type="file" name="image" class="form-control mb-3">
+        <input type="file" name="image" class="form-control mb-3" required>
 
         <div class="row mb-3">
             <div class="col-md-6">
                 <label class="form-label small fw-bold">Available Colors (comma separated)</label>
-                <input type="text" name="colors" class="form-control" placeholder="e.g. Red, Blue, Black">
+                <input type="text" name="colors" class="form-control" placeholder="e.g. Red, Blue, Black" id="colors_input">
             </div>
             <div class="col-md-6">
                 <label class="form-label small fw-bold">Available Sizes (comma separated)</label>
@@ -44,9 +44,97 @@
             </div>
         </div>
 
+        <!-- Additional Images for Colors -->
+        <div id="additional_images_container">
+            <h5>Additional Images for Colors</h5>
+            <p class="text-muted small">Upload images for specific colors. The image will be shown when that color is selected.</p>
+            <div class="additional_image_row mb-3">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="file" name="additional_images" class="form-control" accept="image/*">
+                    </div>
+                    <div class="col-md-5">
+                        <select name="image_colors" class="form-control">
+                            <option value="">Select Color</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-danger btn-sm remove_image_row">×</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-secondary mb-3" id="add_image_row">Add Another Image</button>
+
         <button class="btn btn-primary w-100 py-2 fw-bold">Add Product to Store</button>
 
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const colorsInput = document.getElementById('colors_input');
+    const additionalImagesContainer = document.getElementById('additional_images_container');
+    const addImageRowBtn = document.getElementById('add_image_row');
+
+    // Function to update color options in select dropdowns
+    function updateColorOptions() {
+        const colors = colorsInput.value.split(',').map(c => c.trim()).filter(c => c);
+        const colorSelects = document.querySelectorAll('select[name="image_colors"]');
+        
+        colorSelects.forEach(select => {
+            // Preserve the previously selected value
+            const previouslySelected = select.value;
+            
+            // Clear existing options except the first
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            // Add color options
+            colors.forEach(color => {
+                const option = document.createElement('option');
+                option.value = color;
+                option.textContent = color;
+                select.appendChild(option);
+            });
+            
+            // Restore previously selected value if it still exists
+            if (previouslySelected && colors.includes(previouslySelected)) {
+                select.value = previouslySelected;
+            }
+        });
+    }
+
+    // Update colors when input changes
+    colorsInput.addEventListener('input', updateColorOptions);
+
+    // Add new image row
+    addImageRowBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const newRow = document.querySelector('.additional_image_row').cloneNode(true);
+        // Clear the file input
+        newRow.querySelector('input[type="file"]').value = '';
+        // Reset the select to default
+        newRow.querySelector('select').selectedIndex = 0;
+        newRow.querySelector('select').value = '';
+        additionalImagesContainer.appendChild(newRow);
+        updateColorOptions();
+    });
+
+    // Remove image row
+    additionalImagesContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove_image_row')) {
+            const rows = document.querySelectorAll('.additional_image_row');
+            if (rows.length > 1) {
+                e.target.closest('.additional_image_row').remove();
+            }
+        }
+    });
+
+    // Initial update
+    updateColorOptions();
+});
+</script>
 
 {% endblock %}

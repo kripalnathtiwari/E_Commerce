@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
-from .models import Product, Cart, CartItem, Order, OrderItem, Variation, ReviewRating
+from .models import Product, Cart, CartItem, Order, OrderItem, Variation, ReviewRating, ProductImage
 from category.models import Category
 from .forms import ReviewForm
 from django.core.mail import send_mail
@@ -50,6 +51,13 @@ def product_detail(request, product_id):
     })
 
 
+# ================= GET IMAGE FOR COLOR =================
+def get_image_for_color(request, product_id, color):
+    product = get_object_or_404(Product, id=product_id)
+    image_url = product.get_image_for_color(color)
+    return JsonResponse({'image_url': image_url})
+
+
 # ================= ADD TO CART =================
 @login_required
 def add_to_cart(request, product_id):
@@ -94,36 +102,48 @@ def add_to_cart(request, product_id):
 
     cart, _ = Cart.objects.get_or_create(user=request.user)
 
+    # Helper function to compare variation sets
+    def variations_match(var_list1, var_list2):
+        if len(var_list1) != len(var_list2):
+            return False
+        
+        # Create sets of (category, value) tuples for comparison
+        set1 = set((v.variation_category.lower(), v.variation_value.lower()) for v in var_list1)
+        set2 = set((v.variation_category.lower(), v.variation_value.lower()) for v in var_list2)
+        
+        return set1 == set2
+
     is_cart_item_exists = CartItem.objects.filter(product=product, cart=cart).exists()
     
     if is_cart_item_exists:
-        cart_item = CartItem.objects.filter(product=product, cart=cart)
-        # Check existing variations
-        ex_var_list = []
-        id = []
-        for item in cart_item:
-            existing_variation = item.variations.all()
-            ex_var_list.append(list(existing_variation))
-            id.append(item.id)
-            
-        if product_variation in ex_var_list:
-            # Increase quantity
-            index = ex_var_list.index(product_variation)
-            item_id = id[index]
-            item = CartItem.objects.get(product=product, id=item_id)
-            if item.quantity + 1 > product.stock:
+        cart_items = CartItem.objects.filter(product=product, cart=cart)
+        
+        # Find matching cart item with same variations
+        matching_item = None
+        for cart_item in cart_items:
+            existing_variations = list(cart_item.variations.all())
+            if variations_match(product_variation, existing_variations):
+                matching_item = cart_item
+                break
+        
+        if matching_item:
+            # Increase quantity for matching item
+            if matching_item.quantity + 1 > product.stock:
                 if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                     return JsonResponse({'status': 'warning', 'message': f"Sorry, only {product.stock} units are available."})
                 messages.warning(request, f"Sorry, only {product.stock} units of {product.product_name} are available.")
                 return redirect(request.META.get('HTTP_REFERER', 'cart'))
-            item.quantity += 1
-            item.save()
+            matching_item.quantity += 1
+            matching_item.save()
         else:
+            # Create new cart item with these variations
+            # Create new cart item with these variations
             item = CartItem.objects.create(product=product, quantity=1, cart=cart)
             if len(product_variation) > 0:
                 item.variations.add(*product_variation)
             item.save()
     else:
+        # Product not in cart, create new cart item
         cart_item = CartItem.objects.create(
             product=product,
             quantity=1,

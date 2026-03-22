@@ -1,176 +1,332 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 
-<div class="container mt-4">
+<style>
+    /* Product Card Styles */
+    .product-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #e9ecef;
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+
+    .product-image-wrap {
+        position: relative;
+        overflow: hidden;
+        height: 250px;
+        background: #f0f0f0;
+    }
+
+    .product-image-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image-wrap img {
+        transform: scale(1.1);
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .product-info {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-category {
+        color: #667eea;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .product-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+        line-height: 1.4;
+        min-height: 40px;
+    }
+
+    .product-price {
+        font-size: 24px;
+        font-weight: 800;
+        color: #667eea;
+        margin-bottom: 10px;
+    }
+
+    .product-rating {
+        color: #ffc107;
+        font-size: 13px;
+        margin-bottom: 15px;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .product-actions .btn {
+        flex: 1;
+        padding: 10px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-add-cart {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-add-cart:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-buy {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-buy:hover {
+        background: #218838;
+        transform: translateY(-2px);
+    }
+
+    /* Stock Management Styles */
+    .stock-management {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 1px solid #e9ecef;
+    }
+
+    .stock-management .btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .stock-input {
+        max-width: 80px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 40px;
+        text-align: center;
+    }
+
+    .page-title {
+        font-size: 36px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .page-subtitle {
+        font-size: 16px;
+        opacity: 0.9;
+    }
+
+    /* Search Results */
+    .search-results {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .search-keyword {
+        color: #667eea;
+        font-weight: 700;
+    }
+</style>
 
 {% if keyword %}
-
-<h3>Search Results</h3>
-<p class="text-muted">
-{{ product_count }} items found for "<strong>{{ keyword }}</strong>"
-</p>
-
+<div class="search-results">
+    <h3>Search Results</h3>
+    <p class="text-muted mb-0">
+        {{ product_count }} items found for "<span class="search-keyword">{{ keyword }}</span>"
+    </p>
+</div>
 {% else %}
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-
-<h3>
-{% if category %}
-Products in {{ category.category_name }}
-{% else %}
-Distributor Products
-{% endif %}
-</h3>
-
-{% if request.user.is_authenticated and request.user.distributor_profile %}
-
-<div>
-
-<a href="{% url 'distributor_orders' %}" class="btn btn-primary me-2">
-<i class="fas fa-shopping-basket"></i> View Orders
-</a>
-
-<a href="{% url 'add_product' %}" class="btn btn-success">
-<i class="fas fa-plus"></i> Add Product
-</a>
-
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">
+            {% if category %}
+            {{ category.category_name }}
+            {% else %}
+            Our Products
+            {% endif %}
+        </h1>
+        <p class="page-subtitle">
+            {% if category %}
+            Discover amazing products in {{ category.category_name }}
+            {% else %}
+            Explore our collection of quality products from trusted distributors
+            {% endif %}
+        </p>
+    </div>
 </div>
-
 {% endif %}
 
-</div>
+<div class="container">
 
-{% endif %}
+    {% if request.user.is_authenticated and request.user.distributor_profile %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div></div>
+        <div>
+            <a href="{% url 'distributor_orders' %}" class="btn btn-primary me-2">
+                <i class="fas fa-shopping-basket"></i> View Orders
+            </a>
+            <a href="{% url 'add_product' %}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add Product
+            </a>
+        </div>
+    </div>
+    {% endif %}
 
-<div class="row">
-
-{% for product in products %}
-
-<div class="col-md-3 mb-4">
-
-<div class="card shadow-sm h-100 d-flex flex-column">
-
-{% if product.image %} <a href="{% url 'product_detail' product.id %}"> <img src="{{ product.image.url }}" class="card-img-top" style="height:250px; object-fit:cover;"> </a>
-{% endif %}
-
-<div class="card-body d-flex flex-column">
-
-<a href="{% url 'product_detail' product.id %}" style="text-decoration:none;color:inherit;">
-<h5 class="card-title">{{ product.product_name }}</h5>
-</a>
-
-<p class="card-text">{{ product.description }}</p>
-
-<p><strong>₹ {{ product.price }}</strong></p>
-
-<p class="mb-2">
-
-{% if product.stock > 0 %}
-
-{% if product.stock < 5 %} <span class="text-warning">
-Only {{ product.stock }} left! </span>
-{% else %} <span class="text-success">
-In Stock </span>
-{% endif %}
-
-{% else %} <span class="text-danger">
-Out of Stock </span>
-{% endif %}
-
-</p>
-
-{% if request.user.is_authenticated and product.distributor and product.distributor.user == request.user %}
-
-<div class="mb-3 border rounded p-2 bg-light shadow-sm">
-
-<small class="fw-bold d-block mb-2 text-center text-primary">
-Manage Stock
-</small>
-
-<form method="POST" action="{% url 'update_stock' product.id %}" class="input-group input-group-sm justify-content-center">
-
-{% csrf_token %}
-
-<button type="submit" name="action" value="decrease" class="btn btn-danger">
-<i class="fas fa-minus"></i>
-</button>
-
-<input type="number"
-name="stock"
-value="{{ product.stock }}"
-class="form-control text-center fw-bold"
-min="0"
-style="max-width:70px;"
-onchange="this.form.submit()">
-
-<button type="submit" name="action" value="increase" class="btn btn-success">
-<i class="fas fa-plus"></i>
-</button>
-
-</form>
-
-</div>
-
-{% endif %}
-
-                    <div class="mt-auto">
-
-                        {% if request.user.is_authenticated and product.distributor and product.distributor.user == request.user %}
-
-                        <form method="POST" action="{% url 'delete_product' product.id %}">
-
-                            {% csrf_token %}
-
-                            <button type="submit" class="btn btn-danger w-100"
-                                onclick="return confirm('Delete this product?')">
-
-                                Delete Product
-
-                            </button>
-
-                        </form>
-
+    <div class="row">
+        {% for product in products %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="product-card">
+                <div class="product-image-wrap">
+                    <a href="{% url 'product_detail' product.id %}">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.product_name }}">
                         {% else %}
+                        <img src="{% static 'images/default-product.png' %}" alt="Default">
+                        {% endif %}
+                    </a>
+                    {% if product.stock <= 0 %}
+                    <span class="product-badge">Out of Stock</span>
+                    {% elif product.stock < 5 %}
+                    <span class="product-badge">Only {{ product.stock }} left</span>
+                    {% else %}
+                    <span class="product-badge">In Stock</span>
+                    {% endif %}
+                </div>
 
-                        {% if product.stock > 0 %}
+                <div class="product-info">
+                    <div class="product-category">
+                        {% if product.category %}
+                        {{ product.category.category_name }}
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'product_detail' product.id %}" class="product-title" style="text-decoration: none; color: inherit;">
+                        {{ product.product_name }}
+                    </a>
 
-                        <form action="{% url 'add_to_cart' product.id %}" method="POST" class="ajax-cart-form d-grid gap-2">
+                    <div class="product-price">₹{{ product.price }}</div>
+
+                    <div class="product-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+
+                    {% if request.user.is_authenticated and product.distributor and product.distributor.user == request.user %}
+                    <!-- Stock Management for Distributors -->
+                    <div class="stock-management">
+                        <small class="fw-bold d-block mb-2 text-center text-primary">
+                            Manage Stock
+                        </small>
+                        <form method="POST" action="{% url 'update_stock' product.id %}" class="d-flex justify-content-center align-items-center gap-2">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-warning btn-sm add-to-cart-btn">
+                            <button type="submit" name="action" value="decrease" class="btn btn-danger btn-sm">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" name="stock" value="{{ product.stock }}" class="form-control stock-input" min="0">
+                            <button type="submit" name="action" value="increase" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="product-actions">
+                        <form method="POST" action="{% url 'delete_product' product.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Delete this product?')">
+                                <i class="fas fa-trash"></i> Delete Product
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <!-- Customer Actions -->
+                    {% if product.stock > 0 %}
+                    <div class="product-actions">
+                        <form action="{% url 'add_to_cart' product.id %}" method="POST" class="ajax-cart-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-add-cart">
                                 <i class="fas fa-shopping-cart"></i> Add to Cart
                             </button>
-                            <button type="submit" name="buy_now" value="true" class="btn btn-primary btn-sm">
+                        </form>
+                        <form action="{% url 'add_to_cart' product.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" name="buy_now" value="true" class="btn btn-buy">
                                 <i class="fas fa-money-bill-alt"></i> Buy Now
                             </button>
                         </form>
-
-                        {% else %}
-
-                        <button class="btn btn-secondary btn-sm w-100" disabled>Out of Stock</button>
-
-                        {% endif %}
-
-                        {% endif %}
-
                     </div>
-
-</div>
-
-</div>
-
-</div>
-
-{% empty %}
-
-<div class="col-12 text-center mt-4">
-<p>No distributor products found.</p>
-</div>
-
-{% endfor %}
-
-</div>
-
+                    {% else %}
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="fas fa-times-circle"></i> Out of Stock
+                    </button>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center mt-5">
+            <div style="padding: 60px 20px;">
+                <i class="fas fa-box-open" style="font-size: 64px; color: #ccc; margin-bottom: 20px;"></i>
+                <h4 class="text-muted">No products found</h4>
+                <p class="text-muted">We're working on adding more products. Check back soon!</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
 {% endblock %}

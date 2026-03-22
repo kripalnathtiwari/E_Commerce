@@ -37,6 +37,14 @@ class Product(models.Model):
     def sizes(self):
         return self.variation_set.filter(variation_category__iexact='size', is_active=True)
 
+    def get_image_for_color(self, color):
+        """Get the image for a specific color, or the main image if no color-specific image exists"""
+        if color:
+            product_image = self.product_images.filter(variation__variation_value__iexact=color).first()
+            if product_image:
+                return product_image.image.url
+        return self.image.url
+
     def averageReview(self):
         reviews = ReviewRating.objects.filter(product=self, status=True).aggregate(average=models.Avg('rating'))
         avg = 0
@@ -74,6 +82,16 @@ class Variation(models.Model):
 
     def __str__(self):
         return self.variation_value
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_images')
+    variation = models.ForeignKey(Variation, on_delete=models.CASCADE, null=True, blank=True)  # For color variations
+    image = models.ImageField(upload_to='photos/products')
+    is_main = models.BooleanField(default=False)  # To mark the main image
+
+    def __str__(self):
+        return f"{self.product.product_name} - {self.variation.variation_value if self.variation else 'Main'}"
 
 
 class Cart(models.Model):

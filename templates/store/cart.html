@@ -105,10 +105,13 @@
                                     style="text-decoration:none;color:inherit;">
                                     <strong>{{ item.product.product_name }}</strong>
                                     {% if item.variations.all %}
-                                    {% for var in item.variations.all %}
-                                    <br><small class="text-muted">{{ var.variation_category | capfirst }}: {{
-                                        var.variation_value | capfirst }}</small>
-                                    {% endfor %}
+                                    <div style="margin-top: 8px;">
+                                        {% for var in item.variations.all %}
+                                        <small class="text-muted" style="display: block; margin-bottom: 3px;">
+                                            <strong>{{ var.variation_category | capfirst }}:</strong> {{ var.variation_value }}
+                                        </small>
+                                        {% endfor %}
+                                    </div>
                                     {% endif %}
                                     {% if item.product.stock <= 0 %} <span class="badge bg-danger ms-2">Out of
                                         Stock</span>
