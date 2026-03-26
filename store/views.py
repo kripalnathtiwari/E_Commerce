@@ -34,8 +34,8 @@ def store(request, category_slug=None):
 # ================= PRODUCT DETAIL =================
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    # Fetch 5 related products from the same category, excluding the current one
-    related_products = Product.objects.filter(category=product.category, is_available=True).exclude(id=product.id)[:5]
+    # Fetch 6 related products from the same category, excluding the current one, ordered by newest
+    related_products = Product.objects.filter(category=product.category, is_available=True).exclude(id=product.id).order_by('-created_date')[:6]
     
     orderproduct = False
     if request.user.is_authenticated:

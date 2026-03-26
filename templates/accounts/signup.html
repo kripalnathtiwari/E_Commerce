@@ -1,5 +1,6 @@
 {% extends 'auth_base.html' %}
 {% load static %}
+{% load socialaccount %}
 {% block content %}
 <style>
     .register-container {
@@ -146,6 +147,16 @@
                         <p class="mb-0 text-muted">Already a member? <a href="{% url 'login' %}"
                                 class="fw-bold text-dark">Log In</a></p>
                     </div>
+
+                </form>
+
+                <hr class="my-4">
+                
+                <form action="{% provider_login_url 'google' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger w-100 py-2">
+                        Sign Up with Google
+                    </button>
                 </form>
             </div>
         </div>

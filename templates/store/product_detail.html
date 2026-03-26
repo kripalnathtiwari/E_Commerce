@@ -161,10 +161,14 @@
                             </p>
                             <hr>
                             {% if product.stock > 0 %}
-                            <button type="submit" class="btn  btn-warning add-to-cart-btn"> <span class="text">Add to Cart</span> <i
-                                    class="fas fa-shopping-cart"></i> </button>
-                            <button type="submit" name="buy_now" value="true" class="btn  btn-primary"> <span
-                                    class="text">Buy Now</span> <i class="fas fa-money-bill-alt"></i> </button>
+                            <div class="d-flex flex-column flex-sm-row mt-3">
+                                <button type="submit" class="btn btn-warning add-to-cart-btn w-100 mb-2 mb-sm-0 mr-sm-2 text-white">
+                                    <span class="text">Add to Cart</span> <i class="fas fa-shopping-cart"></i>
+                                </button>
+                                <button type="submit" name="buy_now" value="true" class="btn btn-primary w-100 ml-sm-2 text-white">
+                                    <span class="text">Buy Now</span> <i class="fas fa-money-bill-alt"></i>
+                                </button>
+                            </div>
                             {% else %}
                             <h5 class="text-danger">Out of Stock</h5>
                             {% endif %}

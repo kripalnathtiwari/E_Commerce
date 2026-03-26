@@ -418,6 +418,45 @@ def add_product(request):
     })
 
 @login_required
+def edit_product(request, product_id):
+    distributor = request.user.distributor_profile
+    product = get_object_or_404(Product, id=product_id, distributor=distributor)
+    categories = Category.objects.all()
+
+    if request.method == "POST":
+        product.product_name = request.POST.get('name')
+        product.description = request.POST.get('description')
+        product.price = request.POST.get('price')
+        product.stock = int(request.POST.get('stock'))
+        
+        selected_category_id = request.POST.get('category')
+        new_category_name = request.POST.get('new_category')
+        new_category_image = request.FILES.get('new_category_image')
+
+        if new_category_name:
+            category, created = Category.objects.get_or_create(
+                category_name=new_category_name,
+                defaults={
+                    "slug": slugify(new_category_name),
+                    "cat_image": new_category_image
+                }
+            )
+            product.category = category
+        elif selected_category_id:
+            product.category = Category.objects.get(id=selected_category_id)
+
+        if request.FILES.get('image'):
+            product.image = request.FILES.get('image')
+
+        product.save()
+        return redirect('distributor_dashboard')
+
+    return render(request, 'distributor/edit_product.html', {
+        'product': product,
+        'categories': categories,
+    })
+
+@login_required
 def distributor_orders(request):
 
     distributor = request.user.distributor_profile

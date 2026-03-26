@@ -1,0 +1,11 @@
+SITE_ID in settings: 1
+
+--- Sites ---
+ID: 1, Domain: example.com, Name: example.com
+
+--- Social Apps ---
+Provider: google
+Client ID: 307183439-7cgoms0lreohs7u4a0do208emml8jaae.apps.googleusercontent.com
+Linked Sites: [1]
+
+--- Social Accounts ---

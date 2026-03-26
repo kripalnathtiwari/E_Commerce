@@ -1,0 +1,36 @@
+{% extends "auth_base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h3>Edit Product</h3>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="text" name="name" class="form-control mb-3" placeholder="Product Name" value="{{ product.product_name }}" required>
+        <textarea name="description" class="form-control mb-3" placeholder="Description">{{ product.description }}</textarea>
+        <input type="number" name="price" class="form-control mb-3" placeholder="Price" value="{{ product.price }}" required>
+        <input type="number" name="stock" class="form-control mb-3" placeholder="Stock" value="{{ product.stock }}" required>
+
+        <!-- CATEGORY -->
+        <select name="category" class="form-control mb-3">
+            <option value="">Select Existing Category</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if product.category.id == cat.id %}selected{% endif %}>{{ cat.category_name }}</option>
+            {% endfor %}
+        </select>
+
+        <p class="text-center"><strong>OR</strong></p>
+        <input type="text" name="new_category" class="form-control mb-3" placeholder="Create New Category">
+        <input type="file" name="new_category_image" class="form-control mb-3">
+
+        <label>Current Image:</label>
+        <br>
+        {% if product.image %}
+        <img src="{{ product.image.url }}" style="height:100px; border-radius: 8px; margin-bottom: 10px;">
+        {% endif %}
+        <br>
+        <label>Change Image (optional):</label>
+        <input type="file" name="image" class="form-control mb-3">
+
+        <button class="btn btn-primary w-100 py-2 fw-bold">Update Product</button>
+    </form>
+</div>
+{% endblock %}

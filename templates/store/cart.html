@@ -65,6 +65,23 @@
         font-size: 18px;
         margin-top: 15px;
     }
+
+    @media (max-width: 576px) {
+        .cart-box {
+            padding: 15px;
+        }
+        .product-img {
+            width: 50px;
+            margin-right: 5px;
+        }
+        .qty-btn {
+            padding: 2px 8px;
+        }
+        .checkout-btn {
+            width: 100%;
+            margin-top: 10px;
+        }
+    }
 </style>
 
 <section class="section-content">
@@ -76,6 +93,7 @@
 
             {% if cart_items %}
 
+            <div class="table-responsive">
             <table class="table table-bordered">
 
                 <thead>
@@ -151,6 +169,7 @@
                 </tbody>
 
             </table>
+            </div>
 
             <div class="total-box">
                 <strong>Total: ₹{{ total }}</strong>

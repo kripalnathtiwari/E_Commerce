@@ -1,0 +1,130 @@
+{% extends 'auth_base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .register-container {
+        background: #fff;
+        padding: 40px;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .register-title {
+        font-weight: 700;
+        font-size: 26px;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .form-control {
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        padding: 12px;
+        width: 100%;
+        font-size: 15px;
+    }
+
+    .form-control:focus {
+        border-color: #000;
+        box-shadow: none;
+        outline: none;
+    }
+
+    .form-control::placeholder {
+        color: #888 !important;
+        opacity: 1;
+    }
+
+    .btn-classic {
+        background: #000;
+        color: #fff;
+        border-radius: 4px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 14px;
+        border: none;
+        width: 100%;
+        margin-top: 15px;
+        transition: background-color 0.2s ease;
+    }
+
+    .btn-classic:hover {
+        background: #333;
+        color: #fff;
+    }
+    
+    .helptext {
+        font-size: 0.85em;
+        color: #6c757d;
+        margin-top: 4px;
+        display: block;
+    }
+    
+    .errorlist {
+        color: #dc3545;
+        list-style-type: none;
+        padding: 0;
+        margin-top: 5px;
+        font-size: 0.85em;
+    }
+
+    .input-label {
+        font-weight: 700;
+        color: #444;
+        margin-bottom: 6px;
+        display: inline-block;
+    }
+</style>
+
+<div class="container mt-5 mb-5 pb-5 pt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="register-container">
+                <h2 class="register-title text-center">Complete Registration</h2>
+                <p class="text-center text-muted mb-4" style="font-size: 0.95rem; line-height: 1.5;">
+                    You are almost there! You're signing in as <strong>{{ account.get_provider.name }}</strong> user.
+                    Please confirm your details below to finalize setting up your account.
+                </p>
+
+                <form class="signup" id="signup_form" method="post" action="{% url 'socialaccount_signup' %}">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="input-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <span class="helptext">{{ field.help_text }}</span>
+                        {% endif %}
+                        {% if field.errors %}
+                            {{ field.errors }}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    {% if redirect_field_value %}
+                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-classic mt-4">
+                        Confirm & Create Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var inputs = document.querySelectorAll('#signup_form input');
+        inputs.forEach(function(input) {
+            if (input.type !== 'hidden' && input.type !== 'submit' && input.type !== 'checkbox' && input.type !== 'radio') {
+                input.classList.add('form-control');
+            }
+        });
+    });
+</script>
+{% endblock %}
