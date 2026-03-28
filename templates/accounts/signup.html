@@ -1,165 +1,366 @@
 {% extends 'auth_base.html' %}
 {% load static %}
 {% load socialaccount %}
+
 {% block content %}
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 <style>
+    :root {
+        --primary: #3167eb;
+        --dark: #0f172a;
+        --text: #1e293b;
+        --soft-bg: #f8faff;
+    }
+
+    body {
+        font-family: 'Outfit', sans-serif !important;
+        background: linear-gradient(135deg, #f0f7ff 0%, #e0ebff 100%) !important;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        margin: 0;
+    }
+
     .register-container {
-        background: #fff;
-        padding: 40px;
-        border-radius: 8px;
-        border: 1px solid #e0e0e0;
+        width: 100%;
+        max-width: 600px;
+        margin: 60px auto;
+        padding: 0 20px;
+    }
+
+    .register-box {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(15px);
+        padding: 45px 40px;
+        border-radius: 30px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .register-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: var(--primary);
     }
 
     .register-title {
+        font-weight: 800;
+        font-size: 32px;
+        color: var(--dark);
+        margin-bottom: 8px;
+        letter-spacing: -1px;
+    }
+
+    .register-subtitle {
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 500;
+        margin-bottom: 35px;
+        opacity: 0.8;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
         font-weight: 700;
-        font-size: 24px;
-        margin-bottom: 25px;
-        color: #333;
+        font-size: 14px;
+        color: var(--dark);
+        margin-bottom: 8px;
+        display: block;
     }
 
     .form-control {
-        border-radius: 4px;
-        border: 1px solid #ccc;
-        padding: 12px;
+        background: #f1f5f9;
+        border: 2px solid transparent;
+        border-radius: 16px;
+        padding: 14px 20px;
+        font-weight: 600;
+        color: var(--dark);
+        transition: all 0.3s ease;
+        height: auto;
+    }
+
+    .form-control:focus {
+        background: #ffffff;
+        border-color: var(--primary);
+        box-shadow: 0 10px 20px rgba(49, 103, 235, 0.1);
+        outline: none;
     }
 
     .form-control::placeholder {
-        color: #444 !important;
-        font-weight: 700 !important;
-        opacity: 1;
+        color: #4b5563 !important;
+        opacity: 0.9;
+        font-weight: 500;
     }
 
-    .input-group-text {
-        background-color: #f8f9fa;
-        border-color: #ccc;
-        color: #555;
+    .role-selection {
+        background: #f1f5f9;
+        padding: 25px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+    }
+
+    .role-title {
         font-weight: 700;
+        font-size: 14px;
+        color: var(--dark);
+        margin-bottom: 15px;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
-    .role-box {
-        background: #fdfdfd;
-        padding: 15px;
-        border: 1px dashed #ccc;
-        border-radius: 6px;
-        margin-bottom: 25px;
+    .role-options {
+        display: flex;
+        gap: 15px;
     }
 
-    .btn-classic {
-        background: #000;
-        color: #fff;
-        border-radius: 4px;
+    .role-option {
+        flex: 1;
+        position: relative;
+    }
+
+    .role-option input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .role-label {
+        display: block;
+        padding: 12px 10px;
+        background: #ffffff;
+        border: 2px solid #e2e8f0;
+        border-radius: 14px;
+        text-align: center;
         font-weight: 700;
+        font-size: 14px;
+        color: #64748b;
+        transition: all 0.3s ease;
+    }
+
+    .role-option input:checked+.role-label {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: #f0f7ff;
+        box-shadow: 0 5px 15px rgba(49, 103, 235, 0.1);
+    }
+
+    .section-divider {
+        font-weight: 800;
+        font-size: 13px;
+        color: var(--primary);
         text-transform: uppercase;
         letter-spacing: 1px;
-        padding: 14px;
-        border: none;
+        margin: 25px 0 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
-    .btn-classic:hover {
-        background: #333;
-        color: #fff;
+    .section-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #e2e8f0;
+    }
+
+    .btn-register {
+        background: var(--primary);
+        color: white;
+        font-weight: 800;
+        padding: 16px;
+        border-radius: 18px;
+        border: none;
+        width: 100%;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 25px rgba(49, 103, 235, 0.3);
+        margin-top: 10px;
+    }
+
+    .btn-register:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(49, 103, 235, 0.5);
+        color: white;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 30px 0;
+        color: #94a3b8;
+        font-weight: 700;
+        font-size: 13px;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .divider:not(:empty)::before {
+        margin-right: 15px;
+    }
+
+    .divider:not(:empty)::after {
+        margin-left: 15px;
+    }
+
+    .btn-google {
+        background: #ffffff;
+        color: #1f2937;
+        font-weight: 700;
+        padding: 14px;
+        border-radius: 18px;
+        border: 1px solid #e2e8f0;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-google:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        background: #f8fafc;
+        color: #1f2937;
+    }
+
+    .login-link {
+        display: block;
+        text-align: center;
+        margin-top: 25px;
+        font-weight: 600;
+        color: #64748b;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .login-link span {
+        color: var(--primary);
+        font-weight: 800;
     }
 </style>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-7">
-            <div class="register-container">
-                <h2 class="register-title text-center">Create Your Account</h2>
+<div class="register-container">
+    <div class="register-box">
+        <h3 class="register-title">Create Account</h3>
+        <p class="register-subtitle">Join us to experience seamless shopping</p>
 
-                <!-- MESSAGES -->
-                {% if messages %}
-                {% for message in messages %}
-                <div
-                    class="alert alert-{% if message.tags == 'error' %}danger{% else %}warning{% endif %} py-2 small mb-3">
-                    <strong>{{ message }}</strong>
-                </div>
-                {% endfor %}
-                {% endif %}
-
-                <form method="POST">
-                    {% csrf_token %}
-
-                    <!-- ROLE SELECTION -->
-                    <div class="role-box">
-                        <label class="fw-bold mb-2">Account Type</label>
-                        <div class="d-flex gap-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="role" id="roleCustomer"
-                                    value="customer" checked onchange="toggleDistributorFields()">
-                                <label class="form-check-label fw-bold" for="roleCustomer">Customer</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="role" id="roleDistributor"
-                                    value="distributor" onchange="toggleDistributorFields()">
-                                <label class="form-check-label fw-bold" for="roleDistributor">Distributor</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- DISTRIBUTOR SPECIFIC FIELDS -->
-                    <div id="distributorFields" style="display: none;" class="mb-4">
-                        <h6 class="fw-bold border-bottom pb-2 mb-3">Distributor Information</h6>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <input type="text" name="phone" id="phone_field" class="form-control"
-                                    placeholder="Phone Number">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <input type="text" name="city" id="city_field" class="form-control" placeholder="City">
-                            </div>
-                        </div>
-                    </div>
-
-                    <h6 class="fw-bold border-bottom pb-2 mb-3">Personal Details</h6>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <input type="text" name="username" class="form-control" placeholder="Choose Username" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <input type="email" name="email" class="form-control" placeholder="Email Address" required>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <input type="password" name="password" class="form-control" placeholder="Password" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <input type="password" name="confirm" class="form-control" placeholder="Confirm Password"
-                                required>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-classic w-100 mt-3">
-                        Register Now
-                    </button>
-
-                    <div class="text-center mt-4">
-                        <p class="mb-0 text-muted">Already a member? <a href="{% url 'login' %}"
-                                class="fw-bold text-dark">Log In</a></p>
-                    </div>
-
-                </form>
-
-                <hr class="my-4">
-                
-                <form action="{% provider_login_url 'google' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger w-100 py-2">
-                        Sign Up with Google
-                    </button>
-                </form>
-            </div>
+        {% if messages %}
+        {% for message in messages %}
+        <div
+            class="alert alert-{% if message.tags == 'error' %}danger{% else %}warning{% endif %} rounded-4 py-3 small mb-4">
+            <i class="fa-solid fa-circle-info me-2"></i><strong>{{ message }}</strong>
         </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="role-selection">
+                <span class="role-title">Account Type</span>
+                <div class="role-options">
+                    <div class="role-option">
+                        <input type="radio" name="role" id="roleCustomer" value="customer" checked
+                            onchange="toggleDistributorFields()">
+                        <label class="role-label" for="roleCustomer">Customer</label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" name="role" id="roleDistributor" value="distributor"
+                            onchange="toggleDistributorFields()">
+                        <label class="role-label" for="roleDistributor">Distributor</label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="distributorFields" style="display: none;">
+                <div class="section-divider">Distributor Info</div>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <input type="text" name="phone" id="phone_field" class="form-control"
+                            placeholder="Phone Number">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <input type="text" name="city" id="city_field" class="form-control" placeholder="City">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider">Personal Details</div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
+                </div>
+                <div class="col-md-6 form-group">
+                    <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="username" class="form-control" placeholder="Choose Username" required>
+            </div>
+
+            <div class="form-group">
+                <input type="email" name="email" class="form-control" placeholder="Email Address" required>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                </div>
+                <div class="col-md-6 form-group">
+                    <input type="password" name="confirm" class="form-control" placeholder="Confirm Password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-register">
+                Register Now <i class="fa-solid fa-user-plus ms-2"></i>
+            </button>
+        </form>
+
+        <div class="divider">OR</div>
+
+        <form action="{% provider_login_url 'google' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-google">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 48 48">
+                    <path fill="#FFC107"
+                        d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.21 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" />
+                    <path fill="#FF3D00"
+                        d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.21 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" />
+                    <path fill="#4CAF50"
+                        d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" />
+                    <path fill="#1976D2"
+                        d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" />
+                </svg>
+                Sign Up with Google
+            </button>
+        </form>
+
+        <a href="{% url 'login' %}" class="login-link">
+            Already a member? <span>Log In</span>
+        </a>
     </div>
 </div>
 

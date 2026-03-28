@@ -1,285 +1,477 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-    .checkout-wrapper {
-        background: #f4f6f9;
-        padding: 40px 0;
+    :root {
+        --primary: #3167eb;
+        --dark: #1a1e26;
+        --white: #ffffff;
+        --light: #f8faff;
+        --border: #e2e8f0;
+        --text-muted: #4a5568;
+        --success: #10b981;
     }
 
-    .checkout-box {
-        display: flex;
-        border-radius: 16px;
+    body {
+        font-family: 'Outfit', sans-serif !important;
+        background-color: #f0f7ff !important;
+    }
+
+    .checkout-wrapper {
+        padding: 60px 0;
+    }
+
+    .checkout-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        background: var(--white);
+        border-radius: 30px;
         overflow: hidden;
-        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+        display: flex;
     }
 
     .left-panel {
         width: 35%;
-        background: linear-gradient(135deg, #3b3bb3, #00a7c7);
+        background: linear-gradient(145deg, #1e3c72 0%, #2a5298 100%);
         color: white;
-        padding: 40px;
+        padding: 60px 40px;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: space-between;
+        position: relative;
+    }
+
+    .left-panel::before {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        top: -100px;
+        left: -100px;
+    }
+
+    .left-panel::after {
+        content: '';
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+        border-radius: 50%;
+        bottom: -50px;
+        right: -30px;
+    }
+
+    .secure-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-size: 13px;
+        font-weight: 600;
+        backdrop-filter: blur(5px);
+        margin-bottom: 30px;
     }
 
     .left-panel h2 {
-        font-weight: 700
+        font-weight: 800;
+        font-size: 42px;
+        line-height: 1.1;
+        margin-bottom: 20px;
+    }
+
+    .order-total-box {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 25px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .right-panel {
         width: 65%;
+        padding: 60px;
         background: white;
-        padding: 40px;
+    }
+
+    .step-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .step-number {
+        width: 36px;
+        height: 36px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        margin-right: 15px;
+        box-shadow: 0 5px 15px rgba(49, 103, 235, 0.3);
+    }
+
+    .step-header h4 {
+        margin: 0;
+        font-weight: 800;
+        font-size: 24px;
+        color: #0f172a;
     }
 
     .form-control {
-        border-radius: 8px;
-        padding: 12px;
-        border: 1px solid #ccc;
+        border-radius: 12px;
+        padding: 14px 20px;
+        border: 1px solid #eef1f6;
+        background: #f8faff;
+        font-weight: 500;
+        transition: all 0.3s ease;
     }
 
-    .place-btn {
-        background: #1f6ed4;
-        border: none;
-        padding: 14px 32px;
-        border-radius: 30px;
-        color: white;
-        font-weight: 600;
-        float: right;
+    .form-control:focus {
+        background: white;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(49, 103, 235, 0.1);
     }
 
-    .place-btn:hover {
-        background: #155ab3;
+    .form-control::placeholder {
+        color: #64748b !important;
+        opacity: 1;
+        font-weight: 500;
     }
 
     .address-card {
-        border: 2px solid #eee;
-        border-radius: 10px;
-        padding: 15px;
+        border: 1px solid #eef1f6;
+        border-radius: 18px;
+        padding: 20px;
         margin-bottom: 15px;
         cursor: pointer;
-        transition: 0.3s;
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        background: #f8faff;
     }
 
     .address-card:hover {
-        border-color: #3b3bb3;
+        transform: translateY(-3px);
+        border-color: var(--primary);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
     }
 
     .address-card.active {
-        border-color: #3b3bb3;
-        background: #f0f7ff;
-    }
-
-    .section-title {
-        border-bottom: 2px solid #f0f0f0;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
+        border-color: var(--primary);
+        background: white;
+        border-width: 2px;
+        box-shadow: 0 10px 30px rgba(49, 103, 235, 0.12);
     }
 
     .payment-card {
-        transition: 0.3s;
+        border: 1px solid #eef1f6 !important;
+        border-radius: 20px !important;
+        padding: 25px !important;
+        transition: all 0.3s ease !important;
+        background: #f8faff !important;
         cursor: pointer;
-        border: 2px solid #eee !important;
     }
 
     .payment-card:hover {
-        border-color: #3b3bb3 !important;
-        background: #f8f9ff;
+        transform: scale(1.03);
+        border-color: var(--primary) !important;
     }
 
     .payment-card.active {
-        border-color: #3b3bb3 !important;
-        background: #f0f7ff;
-        box-shadow: 0 5px 15px rgba(59, 59, 179, 0.1);
+        border-color: var(--primary) !important;
+        background: white !important;
+        border-width: 2px !important;
+        box-shadow: 0 15px 35px rgba(49, 103, 235, 0.15);
     }
 
-    .cursor-pointer {
-        cursor: pointer;
+    .payment-card i {
+        font-size: 28px;
+        margin-bottom: 10px;
+        color: var(--primary);
+    }
+
+    .place-btn {
+        background: var(--primary);
+        color: white;
+        padding: 18px 50px;
+        border-radius: 50px;
+        font-weight: 800;
+        border: none;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 25px rgba(49, 103, 235, 0.3);
+    }
+
+    .place-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(49, 103, 235, 0.5);
+        color: white;
+    }
+
+    /* Progress Bar */
+    .checkout-progress {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 50px;
+        position: relative;
+    }
+
+    .checkout-progress::before {
+        content: '';
+        position: absolute;
+        top: 18px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #eef2f7;
+        z-index: 1;
+    }
+
+    .progress-track {
+        position: absolute;
+        top: 18px;
+        left: 0;
+        height: 3px;
+        background: var(--primary);
+        z-index: 2;
+        transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 33.33%;
+    }
+
+    .progress-step {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .step-dot {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border: 3px solid #eef2f7;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: #adb5bd;
+        transition: all 0.3s ease;
+    }
+
+    .progress-step.active .step-dot {
+        border-color: var(--primary);
+        color: var(--primary);
+        box-shadow: 0 0 20px rgba(49, 103, 235, 0.2);
+    }
+
+    .progress-step.completed .step-dot {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    .step-text {
+        font-size: 13px;
+        font-weight: 700;
+        color: #adb5bd;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .progress-step.active .step-text {
+        color: var(--primary);
+    }
+
+    .progress-step.completed .step-text {
+        color: #0f172a;
+    }
+
+    @media (max-width: 992px) {
+        .checkout-container {
+            flex-direction: column;
+        }
+
+        .left-panel,
+        .right-panel {
+            width: 100%;
+            padding: 40px;
+        }
     }
 </style>
-
 <div class="checkout-wrapper">
     <div class="container">
-
-        <div class="checkout-box">
-
-            <!-- LEFT PANEL -->
-
+        <div class="checkout-container">
             <div class="left-panel">
-
-                <h2>Welcome</h2>
-                <p>You are 30 seconds away from completing your order!</p>
-
-                <div class="mt-4">
-                    <p class="mb-1"><small>Total Amount:</small></p>
-                    <h3 class="fw-bold">₹ {% if total %}{{ total }}{% else %}{{ product.price }}{% endif %}</h3>
+                <div>
+                    <div class="secure-badge">
+                        <i class="fas fa-shield-alt me-2"></i> Secure Payment
+                    </div>
+                    <h2>Complete <br>Your Order</h2>
+                    <p class="text-white mb-4">You are just one step away from getting your masterpieces delivered to
+                        your door.</p>
                 </div>
 
+                <div class="summary-details mt-4 mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="opacity-75">Subtotal</span>
+                        <span class="fw-bold">₹{% if total %}{{ total }}{% else %}{{ product.price }}{% endif %}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="opacity-75">Tax (GST)</span>
+                        <span class="fw-bold">Included</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="opacity-75">Shipping</span>
+                        <span class="text-success fw-bold">FREE</span>
+                    </div>
+                </div>
+
+                <div class="order-total-box">
+                    <p class="mb-1 text-white opacity-75"><small>TOTAL AMOUNT PAYABLE</small></p>
+                    <h1 class="fw-bold mb-0">₹{% if total %}{{ total }}{% else %}{{ product.price }}{% endif %}</h1>
+                </div>
             </div>
-
-            <!-- RIGHT PANEL -->
-
             <div class="right-panel">
+                <!-- Progress Bar -->
+                <div class="checkout-progress">
+                    <div class="progress-track" id="progressTrack"></div>
+                    <div class="progress-step active" id="step1">
+                        <div class="step-dot">1</div>
+                        <span class="step-text">Address</span>
+                    </div>
+                    <div class="progress-step" id="step2">
+                        <div class="step-dot">2</div>
+                        <span class="step-text">Design</span>
+                    </div>
+                    <div class="progress-step" id="step3">
+                        <div class="step-dot">3</div>
+                        <span class="step-text">Payment</span>
+                    </div>
+                </div>
+
                 <form method="POST" id="checkoutForm" enctype="multipart/form-data">
                     {% csrf_token %}
-
-                    <h4 class="section-title fw-bold">1. Delivery Address</h4>
-
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <h4>Delivery Address</h4>
+                    </div>
                     {% if addresses %}
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Select saved address</label>
+                    <div class="mb-4 ps-md-5">
+                        <label class="form-label text-muted small fw-bold mb-3">SELECT SAVED ADDRESS</label>
                         <div class="row">
                             {% for addr in addresses %}
                             <div class="col-md-6">
                                 <div class="address-card {% if addr.is_default %}active{% endif %}"
                                     onclick="selectAddress('{{ addr.id }}',this)">
-                                    <div class="d-flex justify-content-between">
+                                    <div class="d-flex justify-content-between align-items-start">
                                         <h6 class="fw-bold mb-1">{{ addr.full_name }}</h6>
-                                        {% if addr.is_default %}<span class="badge bg-primary">Default</span>{% endif %}
+                                        {% if addr.is_default %}
+                                        <i class="fas fa-check-circle text-primary"></i>
+                                        {% endif %}
                                     </div>
-                                    <p class="small text-muted mb-0">
-                                        {{ addr.house }}, {{ addr.area }}<br>
-                                        {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}
-                                    </p>
+                                    <p class="small text-dark mb-0 font-weight-500">{{ addr.house }}, {{ addr.area
+                                        }}<br>{{ addr.city
+                                        }}, {{ addr.pincode }}</p>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
                         <input type="hidden" name="address_id" id="selected_address_id"
                             value="{% for a in addresses %}{% if a.is_default %}{{ a.id }}{% endif %}{% endfor %}">
-                        <div class="text-center mt-2">
-                            <button type="button" class="btn btn-link text-decoration-none"
-                                onclick="toggleNewAddress()">+ Add New Address</button>
-                        </div>
+                        <button type="button" class="btn btn-link text-decoration-none p-0 mt-2 fw-bold"
+                            onclick="toggleNewAddress()">+ Add New Address</button>
                     </div>
                     {% endif %}
-
-                    <!-- NEW ADDRESS FORM -->
-                    <div id="newAddressForm" style="{% if addresses %}display:none;{% endif %}">
-                        <h6 class="fw-bold mb-3 border-bottom pb-2">New Address Details</h6>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <input type="text" name="full_name" id="reg_full_name" class="form-control"
-                                    placeholder="Full Name" required>
-                            </div>
-                            <div class="col-md-6">
-                                <input type="tel" name="phone" id="reg_phone" class="form-control"
-                                    placeholder="Phone Number" pattern="[0-9]{10}" required>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <input type="text" name="city" id="reg_city" class="form-control" placeholder="City"
-                                    required>
-                            </div>
-                            <div class="col-md-6">
-                                <input type="text" name="pincode" id="reg_pincode" class="form-control"
-                                    placeholder="Pincode" pattern="[0-9]{6}" required>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <input type="text" name="house" id="reg_house" class="form-control"
-                                    placeholder="House / Flat No" required>
-                            </div>
-                            <div class="col-md-6">
-                                <input type="text" name="state" id="reg_state" class="form-control" placeholder="State"
-                                    required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <input type="text" name="area" id="reg_area" class="form-control"
-                                placeholder="Area / Street" required>
+                    <div id="newAddressForm" class="ps-md-5" style="{% if addresses %}display:none;{% endif %}">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6"><input type="text" name="full_name" id="reg_full_name"
+                                    class="form-control" placeholder="Full Name"></div>
+                            <div class="col-md-6"><input type="tel" name="phone" id="reg_phone" class="form-control"
+                                    placeholder="Phone Number"></div>
+                            <div class="col-md-6"><input type="text" name="city" id="reg_city" class="form-control"
+                                    placeholder="City"></div>
+                            <div class="col-md-6"><input type="text" name="pincode" id="reg_pincode"
+                                    class="form-control" placeholder="Pincode"></div>
+                            <div class="col-md-6"><input type="text" name="house" id="reg_house" class="form-control"
+                                    placeholder="House / Flat No"></div>
+                            <div class="col-md-6"><input type="text" name="state" id="reg_state" class="form-control"
+                                    placeholder="State"></div>
+                            <div class="col-12"><input type="text" name="area" id="reg_area" class="form-control"
+                                    placeholder="Area / Street"></div>
                         </div>
                         <div class="form-check mb-4">
                             <input class="form-check-input" type="checkbox" name="set_as_default" id="setAsDefault">
-                            <label class="form-check-label">Save as default address</label>
+                            <label class="form-check-label small fw-bold text-muted">Set as default address</label>
                         </div>
                     </div>
-
-                    <!-- OPTIONAL IMAGE UPLOAD SECTION -->
-                    <div class="mt-4 pt-3 border-top">
-                        <h4 class="section-title fw-bold">2. Upload Design (Optional)</h4>
-                        <div class="mb-3">
-                            <label class="form-label">If you want to print a custom design, upload it here:</label>
+                    <div class="step-header mt-5">
+                        <div class="step-number">2</div>
+                        <h4>Upload Design <span class="text-muted fw-light h6">(Optional)</span></h4>
+                    </div>
+                    <div class="ps-md-5 mb-5">
+                        <div class="p-4 border rounded-4 bg-light">
+                            <label class="form-label small fw-bold text-muted">UPLOAD CUSTOM PRINT DESIGN</label>
                             <input type="file" name="design" class="form-control">
-                            <small class="text-muted">Max file size: 5MB. Supported formats: JPG, PNG.</small>
+                            <p class="small text-dark mt-2 mb-0"><i class="fas fa-info-circle me-1"></i> Max 5MB. JPG
+                                or PNG only.</p>
                         </div>
                     </div>
-
-                    <!-- PAYMENT MODE -->
-                    <div class="mt-5 border-top pt-4">
-                        <h4 class="section-title fw-bold">3. Payment Mode</h4>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <div class="payment-card p-3 border rounded text-center cursor-pointer"
-                                    onclick="selectPayment('cod', this)">
-                                    <i class="fas fa-money-bill-wave fa-2x mb-2 text-primary"></i>
-                                    <h6 class="fw-bold mb-0">Cash on Delivery</h6>
+                    <div class="step-header mt-5">
+                        <div class="step-number">3</div>
+                        <h4>Payment Mode</h4>
+                    </div>
+                    <div class="ps-md-5">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="payment-card text-center" onclick="selectPayment('cod', this)">
+                                    <i class="fas fa-hand-holding-usd"></i>
+                                    <h6 class="fw-bold mb-0">COD</h6>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="payment-card p-3 border rounded text-center cursor-pointer"
-                                    onclick="selectPayment('card', this)">
-                                    <i class="fas fa-credit-card fa-2x mb-2 text-primary"></i>
-                                    <h6 class="fw-bold mb-0">Card / UPI</h6>
+                            <div class="col-md-4">
+                                <div class="payment-card text-center" onclick="selectPayment('card', this)">
+                                    <i class="fas fa-credit-card"></i>
+                                    <h6 class="fw-bold mb-0">Card/UPI</h6>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="payment-card p-3 border rounded text-center cursor-pointer"
-                                    onclick="selectPayment('qr', this)">
-                                    <i class="fas fa-qrcode fa-2x mb-2 text-primary"></i>
-                                    <h6 class="fw-bold mb-0">QR Payment</h6>
+                            <div class="col-md-4">
+                                <div class="payment-card text-center" onclick="selectPayment('qr', this)">
+                                    <i class="fas fa-qrcode"></i>
+                                    <h6 class="fw-bold mb-0">QR Scan</h6>
                                 </div>
                             </div>
                         </div>
                         <input type="hidden" name="payment_method" id="selected_payment_method" required>
-
-                        <!-- Card Details Section (Hidden by default) -->
-                        <div id="card_section" style="display: none;" class="mt-4 p-4 border rounded bg-light">
-                            <h5 class="fw-bold text-primary mb-3">Card Details</h5>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Card Number</label>
-                                <input type="text" name="card_number" class="form-control" placeholder="0000 0000 0000 0000">
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">Expiry Date</label>
-                                    <input type="text" name="expiry_date" class="form-control" placeholder="MM/YY">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">CVV</label>
-                                    <input type="password" name="cvv" class="form-control" placeholder="***">
-                                </div>
+                        <div id="card_section" style="display: none;" class="mt-4 p-4 border rounded-4 bg-light">
+                            <h6 class="fw-bold mb-3">Card Details</h6>
+                            <input type="text" name="card_number" class="form-control mb-3" placeholder="Card Number">
+                            <div class="row g-3">
+                                <div class="col-6"><input type="text" name="expiry_date" class="form-control"
+                                        placeholder="MM/YY"></div>
+                                <div class="col-6"><input type="password" name="cvv" class="form-control"
+                                        placeholder="CVV"></div>
                             </div>
                         </div>
-
-                        <!-- QR Payment Section (Hidden by default) -->
                         <div id="qr_section" style="display: none;"
-                            class="mt-4 p-4 border rounded bg-light text-center">
-                            <h5 class="fw-bold text-primary mb-3">Scan & Pay</h5>
-                            
-                            <!-- Hidden original image to act as source for jsQR -->
-                            <img id="raw_qr" src="{% static 'images/qr_code.png' %}" style="display: none;" crossorigin="anonymous">
-                            
-                            <div id="dynamic_qr_container" class="d-flex justify-content-center mb-3">
-                                <!-- Fallback image if JS fails -->
-                                <img src="{% static 'images/qr_code.png' %}" alt="QR Code" class="img-fluid"
-                                style="max-width: 200px; border: 5px solid white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" id="fallback_qr">
-                            </div>
-                            <p class="text-muted small">Scan this QR code with any UPI app and upload the screenshot
-                                below.</p>
-                            <label class="form-label fw-bold mt-2">Upload Payment Screenshot</label>
-                            <input type="file" name="payment_proof" id="payment_proof" class="form-control" onchange="autoSubmitQR()">
+                            class="mt-4 p-4 border rounded-4 bg-light text-center">
+                            <h6 class="fw-bold mb-3">Scan UPI QR</h6>
+                            <img id="raw_qr" src="{% static 'images/qr_code.png' %}" style="display: none;"
+                                crossorigin="anonymous">
+                            <div id="dynamic_qr_container" class="mb-3"></div>
+                            <input type="file" name="payment_proof" class="form-control mt-3" onchange="autoSubmitQR()">
                         </div>
                     </div>
-
-                    <div class="mt-5 border-top pt-4 text-end">
-                        <button type="submit" class="place-btn fs-5">
-                            Confirm & Place Order
+                    <div class="mt-5 text-end">
+                        <button type="submit" class="place-btn w-100">
+                            Place Order & Pay <i class="fas fa-arrow-right ms-2"></i>
                         </button>
                     </div>
                 </form>
@@ -287,165 +479,101 @@
         </div>
     </div>
 </div>
-
 <script>
+    function updateProgress() {
+        const addressSelected = document.getElementById("selected_address_id").value !== "";
+        const paymentSelected = document.getElementById("selected_payment_method").value !== "";
+        const track = document.getElementById("progressTrack");
+
+        if (addressSelected && paymentSelected) {
+            track.style.width = "100%";
+            document.getElementById("step2").classList.add("completed");
+            document.getElementById("step3").classList.add("active");
+        } else if (addressSelected) {
+            track.style.width = "66.66%";
+            document.getElementById("step1").classList.add("completed");
+            document.getElementById("step2").classList.add("active");
+        } else {
+            track.style.width = "33.33%";
+            document.getElementById("step1").classList.add("active");
+            document.getElementById("step2").classList.remove("active", "completed");
+            document.getElementById("step3").classList.remove("active", "completed");
+        }
+    }
 
     function selectAddress(id, element) {
-
         document.getElementById("selected_address_id").value = id
-
-        document.querySelectorAll(".address-card").forEach(el => {
-            el.classList.remove("active")
-        })
-
+        document.querySelectorAll(".address-card").forEach(el => el.classList.remove("active"))
         element.classList.add("active")
-
         document.getElementById("newAddressForm").style.display = "none"
-
         setRequired(false)
-
+        updateProgress()
     }
 
     function toggleNewAddress() {
-
         document.getElementById("newAddressForm").style.display = "block"
-
         document.getElementById("selected_address_id").value = ""
-
-        document.querySelectorAll(".address-card").forEach(el => {
-            el.classList.remove("active")
-        })
-
+        document.querySelectorAll(".address-card").forEach(el => el.classList.remove("active"))
         setRequired(true)
-
-    }
-
-    function setRequired(value) {
-
-        let fields = [
-            "reg_full_name",
-            "reg_phone",
-            "reg_city",
-            "reg_pincode",
-            "reg_house",
-            "reg_state",
-            "reg_area"
-        ]
-
-        fields.forEach(id => {
-            let el = document.getElementById(id)
-            if (el) el.required = value
-        })
-
+        updateProgress()
     }
 
     function selectPayment(method, element) {
-
         document.getElementById("selected_payment_method").value = method
-
-        document.querySelectorAll(".payment-card").forEach(el => {
-            el.classList.remove("active")
-        })
-
+        document.querySelectorAll(".payment-card").forEach(el => el.classList.remove("active"))
         element.classList.add("active")
-
-        if (method === "qr") {
-            document.getElementById("qr_section").style.display = "block"
-            document.getElementById("card_section").style.display = "none"
-        } else if (method === "card") {
-            document.getElementById("card_section").style.display = "block"
-            document.getElementById("qr_section").style.display = "none"
-        } else {
-            document.getElementById("qr_section").style.display = "none"
-            document.getElementById("card_section").style.display = "none"
-        }
-
+        document.getElementById("qr_section").style.display = (method === "qr") ? "block" : "none"
+        document.getElementById("card_section").style.display = (method === "card") ? "block" : "none"
+        updateProgress()
     }
 
     window.onload = function () {
-
         const selected = document.getElementById("selected_address_id")
-
-        if (selected && selected.value !== "") {
-            setRequired(false)
-        } else {
-            setRequired(true)
-        }
-
+        setRequired(!(selected && selected.value !== ""))
+        updateProgress()
     }
-
     function autoSubmitQR() {
         if (document.getElementById("selected_payment_method").value === "qr") {
             var form = document.getElementById("checkoutForm");
-            if(form) form.submit();
+            if (form) form.submit();
         }
     }
-
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-window.addEventListener('load', function() {
-    var rawQrImage = document.getElementById('raw_qr');
-    if(!rawQrImage) return;
-    
-    function processQR() {
-        try {
-            var canvas = document.createElement('canvas');
-            var context = canvas.getContext('2d');
-            canvas.width = rawQrImage.width || rawQrImage.naturalWidth;
-            canvas.height = rawQrImage.height || rawQrImage.naturalHeight;
-            context.drawImage(rawQrImage, 0, 0, canvas.width, canvas.height);
-            
-            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            var code = jsQR(imageData.data, imageData.width, imageData.height);
-            
-            if (code && code.data && code.data.toLowerCase().startsWith("upi://pay")) {
-                var amount = "{% if total %}{{ total }}{% else %}{{ product.price }}{% endif %}";
-                var newUrl = code.data;
-                
-                if (newUrl.indexOf("&am=") === -1 && newUrl.indexOf("?am=") === -1) {
-                    newUrl = newUrl + (newUrl.indexOf("?") > -1 ? "&" : "?") + "am=" + amount;
-                } else {
-                    newUrl = newUrl.replace(/([?&])am=([^&]*)/, "$1am=" + amount);
-                }
-                
-                var container = document.getElementById('dynamic_qr_container');
-                container.innerHTML = "";
-                
-                var qrcode = new QRCode(container, {
-                    text: newUrl,
-                    width: 200,
-                    height: 200,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.M
-                });
-                
-                setTimeout(() => {
-                    let newImg = container.querySelector("img");
-                    let newCanvas = container.querySelector("canvas");
-                    let el = newImg || newCanvas;
-                    if(el){
-                        el.style.border = "5px solid white";
-                        el.style.borderRadius = "10px";
-                        el.style.boxShadow = "0 5px 15px rgba(0,0,0,0.1)";
-                        el.style.margin = "0 auto";
-                        el.style.display = "block";
+    window.addEventListener('load', function () {
+        var rawQrImage = document.getElementById('raw_qr');
+        if (!rawQrImage) return;
+        function processQR() {
+            try {
+                var canvas = document.createElement('canvas');
+                var context = canvas.getContext('2d');
+                canvas.width = rawQrImage.width || rawQrImage.naturalWidth;
+                canvas.height = rawQrImage.height || rawQrImage.naturalHeight;
+                context.drawImage(rawQrImage, 0, 0, canvas.width, canvas.height);
+                var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                var code = jsQR(imageData.data, imageData.width, imageData.height);
+                if (code && code.data && code.data.toLowerCase().startsWith("upi://pay")) {
+                    var amount = "{% if total %}{{ total }}{% else %}{{ product.price }}{% endif %}";
+                    var newUrl = code.data;
+                    if (newUrl.indexOf("&am=") === -1 && newUrl.indexOf("?am=") === -1) {
+                        newUrl = newUrl + (newUrl.indexOf("?") > -1 ? "&" : "?") + "am=" + amount;
+                    } else {
+                        newUrl = newUrl.replace(/([?&])am=([^&]*)/, "$1am=" + amount);
                     }
-                }, 50);
-            }
-        } catch(e) {
-            console.error("QR Code modification error:", e);
+                    var container = document.getElementById('dynamic_qr_container');
+                    container.innerHTML = "";
+                    new QRCode(container, { text: newUrl, width: 200, height: 200, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+                    setTimeout(() => {
+                        let el = container.querySelector("img") || container.querySelector("canvas");
+                        if (el) { el.style.border = "5px solid white"; el.style.borderRadius = "10px"; el.style.boxShadow = "0 5px 15px rgba(0,0,0,0.1)"; el.style.margin = "0 auto"; el.style.display = "block"; }
+                    }, 50);
+                }
+            } catch (e) { console.error("QR Code modification error:", e); }
         }
-    }
-
-    rawQrImage.onload = processQR;
-    if (rawQrImage.complete && rawQrImage.naturalWidth > 0) {
-        processQR();
-    }
-});
+        rawQrImage.onload = processQR;
+        if (rawQrImage.complete && rawQrImage.naturalWidth > 0) { processQR(); }
+    });
 </script>
-
 {% endblock %}

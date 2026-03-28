@@ -12,7 +12,8 @@
                 <aside class="col-md-6">
                     <article class="gallery-wrap">
                         <div class="img-big-wrap">
-                            <center><img id="product-image" src="{{ product.image.url }}" style="max-height: 500px; max-width: 100%;">
+                            <center><img id="product-image" src="{{ product.image.url }}"
+                                    style="max-height: 500px; max-width: 100%;">
                             </center>
                         </div> <!-- img-big-wrap.// -->
 
@@ -31,7 +32,8 @@
 
 
                         <hr>
-                        <form action="{% url 'add_to_cart' product.id %}" method="POST" id="variation-form" class="ajax-cart-form">
+                        <form action="{% url 'add_to_cart' product.id %}" method="POST" id="variation-form"
+                            class="ajax-cart-form">
                             {% csrf_token %}
                             <input type="hidden" name="is_product_detail" value="true">
 
@@ -98,7 +100,7 @@
 
                                 .selected-label-text {
                                     font-size: 14px;
-                                    color: #878787;
+                                    color: #4a5568;
                                     margin-bottom: 8px;
                                 }
 
@@ -148,7 +150,7 @@
                             </div>
                             {% endif %}
 
-                            <p class="mb-3 text-muted">
+                            <p class="mb-3 text-dark fw-bold">
                                 {% if product.stock > 0 %}
                                 {% if product.stock < 5 %} <span class="text-warning">Only {{ product.stock }}
                                     left!</span>
@@ -162,10 +164,12 @@
                             <hr>
                             {% if product.stock > 0 %}
                             <div class="d-flex flex-column flex-sm-row mt-3">
-                                <button type="submit" class="btn btn-warning add-to-cart-btn w-100 mb-2 mb-sm-0 mr-sm-2 text-white">
+                                <button type="submit"
+                                    class="btn btn-warning add-to-cart-btn w-100 mb-2 mb-sm-0 mr-sm-2 text-white">
                                     <span class="text">Add to Cart</span> <i class="fas fa-shopping-cart"></i>
                                 </button>
-                                <button type="submit" name="buy_now" value="true" class="btn btn-primary w-100 ml-sm-2 text-white">
+                                <button type="submit" name="buy_now" value="true"
+                                    class="btn btn-primary w-100 ml-sm-2 text-white">
                                     <span class="text">Buy Now</span> <i class="fas fa-money-bill-alt"></i>
                                 </button>
                             </div>
@@ -181,120 +185,145 @@
 
         <br>
 
-                <div class="row">
-                    <div class="col-md-9">
-                        <!-- Professional Review Header (3rd Image Style) -->
-                        <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
-                            <div>
-                                <h3 class="fw-bold mb-1">Ratings and reviews</h3>
-                                <div class="d-flex align-items-center">
-                                    <div class="h3 fw-bold mb-0 me-2">{{ product.averageReview }} <span class="text-success" style="font-size: 1.5rem;">★</span></div>
-                                    <div class="badge bg-success-light text-success px-3 py-2 rounded-pill fw-bold">
-                                        {% if product.averageReview >= 4 %}Very Good{% elif product.averageReview >= 3 %}Good{% else %}Average{% endif %}
-                                    </div>
-                                </div>
-                                <div class="text-muted small mt-1">based on {{ product.countReview }} ratings by <i class="fas fa-check-circle text-muted"></i> Verified Buyers</div>
+        <div class="row">
+            <div class="col-md-9">
+                <!-- Professional Review Header (3rd Image Style) -->
+                <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
+                    <div>
+                        <h3 class="fw-bold mb-1">Ratings and reviews</h3>
+                        <div class="d-flex align-items-center">
+                            <div class="h3 fw-bold mb-0 me-2">{{ product.averageReview }} <span class="text-success"
+                                    style="font-size: 1.5rem;">★</span></div>
+                            <div class="badge bg-success-light text-success px-3 py-2 rounded-pill fw-bold">
+                                {% if product.averageReview >= 4 %}Very Good{% elif product.averageReview >= 3 %}Good{%
+                                else %}Average{% endif %}
                             </div>
                         </div>
+                        <div class="text-dark small mt-1 font-weight-600">based on {{ product.countReview }} ratings by
+                            <i class="fas fa-check-circle text-primary"></i> Verified Buyers</div>
+                    </div>
+                </div>
 
-                        <!-- Review Images Gallery -->
-                        {% if reviews %}
-                            <div class="mb-5 overflow-auto d-flex gap-3 pb-2" style="scrollbar-width: thin;">
-                                {% for review in reviews %}
-                                    {% if review.image %}
-                                        <div class="flex-shrink-0 position-relative" style="width: 180px; height: 180px;">
-                                            <a href="{{ review.image.url }}" target="_blank">
-                                                <img src="{{ review.image.url }}" class="rounded shadow-sm w-100 h-100" style="object-fit: cover; cursor: zoom-in;">
-                                            </a>
-                                            {% if forloop.counter == 5 and reviews.count > 5 %}
-                                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center text-white fw-bold fs-4 rounded">
-                                                    +{{ reviews.count|add:"-5" }}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
+                <!-- Review Images Gallery -->
+                {% if reviews %}
+                <div class="mb-5 overflow-auto d-flex gap-3 pb-2" style="scrollbar-width: thin;">
+                    {% for review in reviews %}
+                    {% if review.image %}
+                    <div class="flex-shrink-0 position-relative" style="width: 180px; height: 180px;">
+                        <a href="{{ review.image.url }}" target="_blank">
+                            <img src="{{ review.image.url }}" class="rounded shadow-sm w-100 h-100"
+                                style="object-fit: cover; cursor: zoom-in;">
+                        </a>
+                        {% if forloop.counter == 5 and reviews.count > 5 %}
+                        <div
+                            class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center text-white fw-bold fs-4 rounded">
+                            +{{ reviews.count|add:"-5" }}
+                        </div>
                         {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
 
-                        <!-- Individual Review Cards (Horizontal Scroll/Grid mix) -->
-                        <div class="row row-cols-1 row-cols-md-2 g-4 mb-5">
-                            {% for review in reviews %}
-                            <div class="col">
-                                <div class="card h-100 border-0 shadow-sm p-3 rounded-4">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div class="badge bg-success text-white px-2 py-1 small rounded-1">
-                                            {{ review.rating }} <small>★</small>
-                                        </div>
-                                        <span class="text-muted small">{{ review.updated_at|timesince }} ago</span>
-                                    </div>
-                                    <h6 class="fw-bold mb-2">{{ review.subject }}</h6>
-                                    <p class="text-secondary small mb-3 flex-grow-1">{{ review.review|truncatechars:120 }}</p>
-                                    
-                                    <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-auto">
-                                        <div class="author-info">
-                                            <div class="fw-bold small text-dark">{{ review.user.username }}</div>
-                                            <div class="text-muted x-small" style="font-size: 11px;">
-                                                <i class="fas fa-check-circle text-primary me-1"></i> Verified Buyer
-                                            </div>
-                                        </div>
-                                        <div class="d-flex gap-3 text-muted small">
-                                            <span><i class="far fa-thumbs-up"></i> 0</span>
-                                            <span><i class="far fa-thumbs-down"></i> 0</span>
-                                        </div>
+                <!-- Individual Review Cards (Horizontal Scroll/Grid mix) -->
+                <div class="row row-cols-1 row-cols-md-2 g-4 mb-5">
+                    {% for review in reviews %}
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm p-3 rounded-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="badge bg-success text-white px-2 py-1 small rounded-1">
+                                    {{ review.rating }} <small>★</small>
+                                </div>
+                                <span class="text-dark small fw-bold">{{ review.updated_at|timesince }} ago</span>
+                            </div>
+                            <h6 class="fw-bold mb-2">{{ review.subject }}</h6>
+                            <p class="text-dark small mb-3 flex-grow-1 font-weight-500">{{
+                                review.review|truncatechars:120 }}</p>
+
+                            <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-auto">
+                                <div class="author-info">
+                                    <div class="fw-bold small text-dark">{{ review.user.username }}</div>
+                                    <div class="text-muted x-small" style="font-size: 11px;">
+                                        <i class="fas fa-check-circle text-primary me-1"></i> Verified Buyer
                                     </div>
                                 </div>
+                                <div class="d-flex gap-3 text-muted small">
+                                    <span><i class="far fa-thumbs-up"></i> 0</span>
+                                    <span><i class="far fa-thumbs-down"></i> 0</span>
+                                </div>
                             </div>
-                            {% empty %}
-                            <div class="col-12 text-center py-5">
-                                <div class="text-muted">No reviews yet. Be the first to buy and review!</div>
-                            </div>
-                            {% endfor %}
                         </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <div class="text-muted">No reviews yet. Be the first to buy and review!</div>
+                    </div>
+                    {% endfor %}
+                </div>
 
-                    </div> <!-- col.// -->
-                </div> <!-- row.// -->
+            </div> <!-- col.// -->
+        </div> <!-- row.// -->
 
         <br>
         {% if related_products %}
         <div class="mt-5">
             <div class="section-header" style="text-align: center; margin-bottom: 50px;">
                 <h2 style="font-size: 28px; font-weight: 800; color: #333; margin-bottom: 10px;">You May Also Like</h2>
-                <div style="width: 60px; height: 4px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 0 auto; border-radius: 2px;"></div>
+                <div style="width: 60px; height: 4px; background: #3167eb; margin: 0 auto; border-radius: 2px;"></div>
             </div>
 
             <div class="row">
                 {% for rel_product in related_products %}
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <div class="product-card" style="background: white; border-radius: 10px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.08); height: 100%; display: flex; flex-direction: column; border: 1px solid #e9ecef;" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 15px 30px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.08)'">
-                        <div class="product-image-wrap" style="position: relative; overflow: hidden; height: 200px; background: #f0f0f0;">
+                    <div class="product-card"
+                        style="background: white; border-radius: 10px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.08); height: 100%; display: flex; flex-direction: column; border: 1px solid #e9ecef;"
+                        onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 15px 30px rgba(0,0,0,0.15)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.08)'">
+                        <div class="product-image-wrap"
+                            style="position: relative; overflow: hidden; height: 200px; background: #f0f0f0;">
                             <a href="{% url 'product_detail' rel_product.id %}">
                                 {% if rel_product.image %}
-                                <img src="{{ rel_product.image.url }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                <img src="{{ rel_product.image.url }}"
+                                    style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;"
+                                    onmouseover="this.style.transform='scale(1.1)'"
+                                    onmouseout="this.style.transform='scale(1)'">
                                 {% else %}
-                                <img src="{% static 'images/default-product.png' %}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                <img src="{% static 'images/default-product.png' %}"
+                                    style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;"
+                                    onmouseover="this.style.transform='scale(1.1)'"
+                                    onmouseout="this.style.transform='scale(1)'">
                                 {% endif %}
                             </a>
-                            {% if rel_product.stock <= 0 %}
-                            <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">Out of Stock</span>
-                            {% elif rel_product.stock < 5 %}
-                            <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">Only {{ rel_product.stock }} left</span>
-                            {% else %}
-                            <span class="product-badge" style="position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">In Stock</span>
-                            {% endif %}
+                            {% if rel_product.stock <= 0 %} <span class="product-badge"
+                                style="position: absolute; top: 10px; right: 10px; background: #3167eb; color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">
+                                Out of Stock</span>
+                                {% elif rel_product.stock < 5 %} <span class="product-badge"
+                                    style="position: absolute; top: 10px; right: 10px; background: #3167eb; color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">
+                                    Only {{ rel_product.stock }} left</span>
+                                    {% else %}
+                                    <span class="product-badge"
+                                        style="position: absolute; top: 10px; right: 10px; background: #3167eb; color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">In
+                                        Stock</span>
+                                    {% endif %}
                         </div>
 
-                        <div class="product-info" style="padding: 20px; flex-grow: 1; display: flex; flex-direction: column;">
-                            <div class="product-category" style="color: #667eea; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">
+                        <div class="product-info"
+                            style="padding: 20px; flex-grow: 1; display: flex; flex-direction: column;">
+                            <div class="product-category"
+                                style="color: #3167eb; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">
                                 {% if rel_product.category %}
                                 {{ rel_product.category.category_name }}
                                 {% endif %}
                             </div>
-                            <a href="{% url 'product_detail' rel_product.id %}" class="product-title" style="font-size: 16px; font-weight: 700; color: #333; margin-bottom: 10px; line-height: 1.4; text-decoration: none;">
+                            <a href="{% url 'product_detail' rel_product.id %}" class="product-title"
+                                style="font-size: 16px; font-weight: 700; color: #333; margin-bottom: 10px; line-height: 1.4; text-decoration: none;">
                                 {{ rel_product.product_name }}
                             </a>
 
-                            <div class="product-price" style="font-size: 20px; font-weight: 800; color: #667eea; margin-bottom: 10px;">₹{{ rel_product.price }}</div>
+                            <div class="product-price"
+                                style="font-size: 20px; font-weight: 800; color: #3167eb; margin-bottom: 10px;">₹{{
+                                rel_product.price }}</div>
 
                             <div class="product-rating" style="color: #ffc107; font-size: 13px; margin-bottom: 15px;">
                                 <i class="fas fa-star"></i>
@@ -306,15 +335,21 @@
 
                             {% if rel_product.stock > 0 %}
                             <div class="product-actions" style="display: flex; gap: 10px; margin-top: auto;">
-                                <form action="{% url 'add_to_cart' rel_product.id %}" method="POST" class="ajax-cart-form" style="flex: 1;">
+                                <form action="{% url 'add_to_cart' rel_product.id %}" method="POST"
+                                    class="ajax-cart-form" style="flex: 1;">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-add-cart" style="width: 100%; padding: 10px 12px; font-size: 13px; font-weight: 600; border-radius: 5px; transition: all 0.3s ease; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                    <button type="submit" class="btn btn-add-cart"
+                                        style="width: 100%; padding: 10px 12px; font-size: 13px; font-weight: 600; border-radius: 5px; transition: all 0.3s ease; border: none; background: #3167eb; color: white;"
+                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(49, 103, 235, 0.4)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
                                         <i class="fas fa-shopping-cart"></i> Add to Cart
                                     </button>
                                 </form>
                             </div>
                             {% else %}
-                            <button class="btn btn-secondary" style="width: 100%; padding: 10px 12px; font-size: 13px; font-weight: 600; border-radius: 5px; border: none;" disabled>
+                            <button class="btn btn-secondary"
+                                style="width: 100%; padding: 10px 12px; font-size: 13px; font-weight: 600; border-radius: 5px; border: none;"
+                                disabled>
                                 <i class="fas fa-times-circle"></i> Out of Stock
                             </button>
                             {% endif %}
@@ -330,34 +365,34 @@
 </section>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const colorRadios = document.querySelectorAll('input[name="color"]');
-    const productImage = document.getElementById('product-image');
+    document.addEventListener('DOMContentLoaded', function () {
+        const colorRadios = document.querySelectorAll('input[name="color"]');
+        const productImage = document.getElementById('product-image');
 
-    colorRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            const selectedColor = this.value;
-            // Get the image URL for the selected color
-            // We'll use a data attribute or make an AJAX call
-            // For now, let's assume we have the images available
-            updateProductImage(selectedColor);
+        colorRadios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                const selectedColor = this.value;
+                // Get the image URL for the selected color
+                // We'll use a data attribute or make an AJAX call
+                // For now, let's assume we have the images available
+                updateProductImage(selectedColor);
+            });
         });
-    });
 
-    function updateProductImage(color) {
-        // This would ideally make an AJAX call to get the image URL
-        // For simplicity, we'll construct the URL or use a mapping
-        // Since we don't have the mapping here, let's make a simple AJAX call
-        fetch(`/store/get_image_for_color/{{ product.id }}/${color}/`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.image_url) {
-                    productImage.src = data.image_url;
-                }
-            })
-            .catch(error => console.log('Error fetching image:', error));
-    }
-});
+        function updateProductImage(color) {
+            // This would ideally make an AJAX call to get the image URL
+            // For simplicity, we'll construct the URL or use a mapping
+            // Since we don't have the mapping here, let's make a simple AJAX call
+            fetch(`/store/get_image_for_color/{{ product.id }}/${color}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.image_url) {
+                        productImage.src = data.image_url;
+                    }
+                })
+                .catch(error => console.log('Error fetching image:', error));
+        }
+    });
 </script>
 
 {% endblock %}

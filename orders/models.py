@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from store.models import Product, Variation  # Added Variation
 from django.conf import settings
 import uuid
+from E_Commerce.custom_storages import S3DesignStorage
 User = get_user_model()
 
 
@@ -25,7 +26,7 @@ class Address(models.Model):
 # ================= DESIGN =================
 class UploadedDesign(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="uploaded_designs")
-    image = models.ImageField(upload_to="designs/")
+    image = models.ImageField(upload_to="designs/", storage=S3DesignStorage())
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -123,7 +124,7 @@ class PrintOrder(models.Model):
     quantity = models.IntegerField(default=1)
     total_price = models.DecimalField(max_digits=8, decimal_places=2)
 
-    payment_proof = models.ImageField(upload_to="payment_proofs/", blank=True, null=True)
+    payment_proof = models.ImageField(upload_to="payment_proofs/", storage=S3DesignStorage(), blank=True, null=True)
 
     # Simulated Card Details
     card_number = models.CharField(max_length=20, blank=True, null=True)
@@ -257,6 +258,7 @@ class Return(models.Model):
 
     photo = models.ImageField(
         upload_to="return_photos/",
+        storage=S3DesignStorage(),
         help_text="Upload photo of the defective product"
     )
 

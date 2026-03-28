@@ -26,9 +26,30 @@ INSTALLED_APPS = [
     'category',
     'accounts',
     'store',
+    'storages',
     
 ]
 
+# ================= AWS S3 CONFIG (For specific fields) =================
+AWS_ACCESS_KEY_ID = 'AKIA5FCQ22TSVWUGDY73'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'xstyle-bucket'
+AWS_S3_REGION_NAME = 'us-east-1'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+AWS_QUERYSTRING_AUTH = False
+AWS_S3_SIGNATURE_VERSION = "s3v4"
+
+# Set default storages back to LOCAL
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+# =================================================
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
@@ -110,12 +131,13 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'static'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 STATICFILES_DIRS = [
     'E_Commerce/static',
 ]
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 SITE_ID = 1
 

@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
+from types import SimpleNamespace
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from .models import Product, Cart, CartItem, Order, OrderItem, Variation, ReviewRating, ProductImage
@@ -100,6 +101,19 @@ def add_to_cart(request, product_id):
         messages.error(request, "Product is not available for sale")
         return redirect('store')
 
+    # If it's a Buy Now click
+    if request.POST.get('buy_now'):
+        request.session['buy_now_item'] = {
+            'product_id': product_id,
+            'variations': [v.id for v in product_variation],
+            'quantity': 1
+        }
+        return redirect('checkout')
+    
+    # Normal Add to Cart (Clear any previous Buy Now session)
+    if 'buy_now_item' in request.session:
+        del request.session['buy_now_item']
+
     cart, _ = Cart.objects.get_or_create(user=request.user)
 
     # Helper function to compare variation sets
@@ -137,7 +151,6 @@ def add_to_cart(request, product_id):
             matching_item.save()
         else:
             # Create new cart item with these variations
-            # Create new cart item with these variations
             item = CartItem.objects.create(product=product, quantity=1, cart=cart)
             if len(product_variation) > 0:
                 item.variations.add(*product_variation)
@@ -152,11 +165,6 @@ def add_to_cart(request, product_id):
         if len(product_variation) > 0:
             cart_item.variations.add(*product_variation)
         cart_item.save()
-
-
-    # If it's a Buy Now click
-    if request.POST.get('buy_now'):
-        return redirect('checkout')
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         cart_count = CartItem.objects.filter(cart__user=request.user).count()
@@ -238,14 +246,30 @@ def contact(request):
 # ================= CHECKOUT (STEP 1) =================
 @login_required
 def checkout(request):
-
-    cart_items = CartItem.objects.filter(cart__user=request.user)
-
-    if not cart_items.exists():
-        messages.error(request, "Your cart is empty")
-        return redirect('cart')
-
-    total = sum(item.sub_total() for item in cart_items)
+    buy_now_item_data = request.session.get('buy_now_item')
+    
+    if buy_now_item_data:
+        product = get_object_or_404(Product, id=buy_now_item_data['product_id'])
+        variations = Variation.objects.filter(id__in=buy_now_item_data['variations'])
+        
+        # Create a mock object that behaves like a CartItem
+        item = SimpleNamespace(
+            product=product,
+            quantity=buy_now_item_data['quantity'],
+            variations=SimpleNamespace(
+                all=lambda: variations,
+                exists=lambda: variations.exists()
+            ),
+            sub_total=lambda: product.price * buy_now_item_data['quantity']
+        )
+        cart_items = [item]
+        total = item.sub_total()
+    else:
+        cart_items = CartItem.objects.filter(cart__user=request.user)
+        if not cart_items.exists():
+            messages.error(request, "Your cart is empty")
+            return redirect('cart')
+        total = sum(item.sub_total() for item in cart_items)
 
     addresses = Address.objects.filter(user=request.user)
 
@@ -350,8 +374,11 @@ def checkout(request):
         except:
             pass
 
-        # ---------- CLEAR CART ----------
-        cart_items.delete()
+        # ---------- CLEAR CART / SESSION ----------
+        if request.session.get('buy_now_item'):
+            del request.session['buy_now_item']
+        else:
+            cart_items.delete()
 
         messages.success(request, "🎉 Order placed successfully!")
         return redirect('store')
