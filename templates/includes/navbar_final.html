@@ -1,5 +1,6 @@
-﻿{% load static %}
+{% load static %}
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- FINAL_HEADER_VERSION_1.0 -->
 
 <style>
     :root {
@@ -237,6 +238,10 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
+    .cart-status-0 {
+        display: none !important;
+    }
+
     /* Dropdown Overrides */
     .dropdown-menu {
         border: 1px solid #e2e8f0;
@@ -348,7 +353,7 @@
                             <a href="#" class="account-widget dropdown-toggle" data-toggle="dropdown"
                                 id="accountDropdown">
                                 <div class="account-info d-none d-sm-flex text-right">
-                                    <span class="account-welcome">Welcome</span>
+                                    <span class="account-welcome">Welcome Partner</span>
                                     <span class="account-name">{% if user.is_authenticated %}{{
                                         user.first_name|default:user.username }}{% else %}Guest{% endif %}</span>
                                 </div>
@@ -382,9 +387,8 @@
                         <!-- Cart Widget -->
                         <a href="{% url 'cart' %}" class="cart-widget">
                             <i class="fas fa-shopping-cart"></i>
-                            <span id="cart-count" class="cart-badge" {% if cart_count==0 %}style="display:none;" {%
-                                endif %}>
-                                {{ cart_count }}
+                            <span id="cart-count" class="cart-badge cart-status-{{ count_items_in_cart|default:0 }}">
+                                {{ count_items_in_cart|default:0 }}
                             </span>
                         </a>
 

@@ -15,6 +15,22 @@ from store.models import Variation
 from store.models import ProductImage
 from django.core.mail import send_mail
 from django.conf import settings
+from functools import wraps
+from django.core.exceptions import ObjectDoesNotExist
+
+def distributor_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        try:
+            if hasattr(request.user, 'distributor_profile'):
+                return view_func(request, *args, **kwargs)
+            else:
+                messages.error(request, "Access denied. You are not registered as a distributor.")
+                return redirect('home')
+        except ObjectDoesNotExist:
+            messages.error(request, "Access denied. Distributor profile not found.")
+            return redirect('home')
+    return _wrapped_view
 
 @login_required
 def checkout(request, product_id):
@@ -157,6 +173,7 @@ def checkout(request, product_id):
     })
 
 @login_required
+@distributor_required
 def distributor_dashboard(request):
     return redirect('distributor_orders')
 
@@ -211,6 +228,7 @@ def place_order(request, product_id):
 # Removed duplicate distributor_orders function
 
 @login_required
+@distributor_required
 def update_delivery_status(request, order_id):
 
     distributor = request.user.distributor_profile
@@ -280,6 +298,7 @@ def update_delivery_status(request, order_id):
     return redirect('distributor_orders')
 
 @login_required
+@distributor_required
 def update_payment_status(request, order_id):
 
     distributor = request.user.distributor_profile
@@ -312,6 +331,7 @@ def user_orders(request):
 
 
 @login_required
+@distributor_required
 def add_product(request):
 
     distributor = request.user.distributor_profile
@@ -418,6 +438,7 @@ def add_product(request):
     })
 
 @login_required
+@distributor_required
 def edit_product(request, product_id):
     distributor = request.user.distributor_profile
     product = get_object_or_404(Product, id=product_id, distributor=distributor)
@@ -457,6 +478,7 @@ def edit_product(request, product_id):
     })
 
 @login_required
+@distributor_required
 def distributor_orders(request):
 
     distributor = request.user.distributor_profile
@@ -548,6 +570,7 @@ def user_orders(request):
     return render(request, 'shop/my_orders.html', {'orders': orders})
 
 @login_required
+@distributor_required
 def distributor_products(request):
     distributor = request.user.distributor_profile
     products = StoreProduct.objects.filter(distributor=distributor)
@@ -555,6 +578,7 @@ def distributor_products(request):
     return render(request, "distributor/products.html", {"products": products})
 
 @login_required
+@distributor_required
 def update_stock(request, product_id):
     if request.method == "POST":
         product = get_object_or_404(StoreProduct, id=product_id, distributor=request.user.distributor_profile)
@@ -672,6 +696,7 @@ def view_returns(request):
 
 
 @login_required
+@distributor_required
 def distributor_returns(request):
     """View all returns for distributor's orders"""
     from .models import Return
@@ -705,6 +730,7 @@ def distributor_returns(request):
 
 
 @login_required
+@distributor_required
 def update_return_status(request, return_id):
     """Update return status (approve/reject)"""
     from .models import Return

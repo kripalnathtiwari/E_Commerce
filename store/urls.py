@@ -20,4 +20,5 @@ urlpatterns = [
     path('distributor/dashboard/', views.distributor_dashboard, name='distributor_dashboard'),
     path('delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
     path('write_review/<int:product_id>/', views.write_review, name='write_review'),
+    path('support/', views.support, name='support'),
 ]

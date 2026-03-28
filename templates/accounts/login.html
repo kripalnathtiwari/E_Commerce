@@ -254,6 +254,33 @@
     .register-link:hover span {
         text-decoration: underline;
     }
+
+    .method-toggle {
+        display: flex;
+        background: #f1f5f9;
+        padding: 6px;
+        border-radius: 14px;
+        margin-bottom: 25px;
+    }
+
+    .method-btn {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 10px;
+        font-weight: 700;
+        font-size: 13px;
+        color: #64748b;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .method-btn.active {
+        background: #ffffff;
+        color: var(--primary);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
 </style>
 
 <div class="login-container">
@@ -261,19 +288,35 @@
         <h3 class="login-title">Welcome Back</h3>
         <p class="login-subtitle">Securely log in to your account</p>
 
-        <form method="POST">
+        {% if messages %}
+        {% for message in messages %}
+        <div
+            class="alert alert-{% if message.tags == 'error' %}danger{% else %}info{% endif %} rounded-4 py-3 small mb-4">
+            <i class="fa-solid fa-circle-info me-2"></i><strong>{{ message }}</strong>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="method-toggle">
+            <button type="button" class="method-btn active" onclick="setLoginMethod('password')">Password</button>
+            <button type="button" class="method-btn" onclick="setLoginMethod('otp')">Email OTP</button>
+        </div>
+
+        <form method="POST" id="loginForm">
             {% csrf_token %}
+            <input type="hidden" name="login_method" id="loginMethod" value="password">
 
             <div class="form-group">
                 <div class="input-icon-wrap">
-                    <input type="text" name="username" class="form-control" placeholder="Username or Email" required>
-                    <i class="fa-regular fa-user"></i>
+                    <input type="text" name="username" class="form-control" placeholder="Email Address" required>
+                    <i class="fa-regular fa-envelope"></i>
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="passwordGroup">
                 <div class="input-icon-wrap">
-                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                    <input type="password" name="password" class="form-control" placeholder="Password"
+                        id="passwordField" required>
                     <i class="fa-solid fa-lock"></i>
                 </div>
             </div>
@@ -298,7 +341,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-login">
+            <button type="submit" class="btn-login" id="submitBtn">
                 Log In <i class="fa-solid fa-arrow-right-to-bracket ms-2"></i>
             </button>
         </form>
@@ -328,4 +371,29 @@
     </div>
 </div>
 
+<script>
+    function setLoginMethod(method) {
+        const methodInput = document.getElementById('loginMethod');
+        const passwordGroup = document.getElementById('passwordGroup');
+        const passwordField = document.getElementById('passwordField');
+        const submitBtn = document.getElementById('submitBtn');
+        const btns = document.querySelectorAll('.method-btn');
+
+        methodInput.value = method;
+
+        btns.forEach(btn => {
+            btn.classList.toggle('active', btn.textContent.toLowerCase().includes(method));
+        });
+
+        if (method === 'otp') {
+            passwordGroup.style.display = 'none';
+            passwordField.required = false;
+            submitBtn.innerHTML = 'Send OTP <i class="fa-solid fa-paper-plane ms-2"></i>';
+        } else {
+            passwordGroup.style.display = 'block';
+            passwordField.required = true;
+            submitBtn.innerHTML = 'Log In <i class="fa-solid fa-arrow-right-to-bracket ms-2"></i>';
+        }
+    }
+</script>
 {% endblock %}

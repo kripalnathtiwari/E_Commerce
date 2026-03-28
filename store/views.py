@@ -627,3 +627,6 @@ def write_review(request, product_id):
         'form': form,
         'review': review
     })
+
+def support(request):
+    return render(request, 'store/support.html')

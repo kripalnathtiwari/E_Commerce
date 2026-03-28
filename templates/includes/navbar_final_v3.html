@@ -1,4 +1,4 @@
-﻿{% load static %}
+{% load static %}
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -237,6 +237,19 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
+    /* Logic-driven Visibility (CSS instead of Django tags inside attributes) */
+    .cart-status-0 {
+        display: none !important;
+    }
+
+    .is-auth-False .auth-only {
+        display: none !important;
+    }
+
+    .is-auth-True .guest-only {
+        display: none !important;
+    }
+
     /* Dropdown Overrides */
     .dropdown-menu {
         border: 1px solid #e2e8f0;
@@ -341,7 +354,7 @@
 
                 <!-- Actions -->
                 <div class="col-lg-3 col-md-3 col-6 order-2 order-lg-3">
-                    <div class="widget-container justify-content-end">
+                    <div class="widget-container justify-content-end is-auth-{{ user.is_authenticated }}">
 
                         <!-- Account Widget -->
                         <div class="dropdown">
@@ -349,42 +362,44 @@
                                 id="accountDropdown">
                                 <div class="account-info d-none d-sm-flex text-right">
                                     <span class="account-welcome">Welcome</span>
-                                    <span class="account-name">{% if user.is_authenticated %}{{
-                                        user.first_name|default:user.username }}{% else %}Guest{% endif %}</span>
+                                    <span class="account-name">
+                                        <span class="auth-only">{{ user.first_name|default:user.username }}</span>
+                                        <span class="guest-only">Guest</span>
+                                    </span>
                                 </div>
                                 <div class="account-avatar">
-                                    {% if user.is_authenticated %}{{ user.username|first|upper }}{% else %}<i
-                                        class="fas fa-user"></i>{% endif %}
+                                    <span class="auth-only">{{ user.username|first|upper }}</span>
+                                    <span class="guest-only"><i class="fas fa-user"></i></span>
                                 </div>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right mt-2 shadow-lg"
                                 aria-labelledby="accountDropdown">
-                                {% if user.is_authenticated %}
-                                <div class="px-4 py-2 mb-2 border-bottom d-sm-none">
-                                    <div class="font-weight-bold">{{ user.get_full_name }}</div>
-                                    <div class="small text-muted">{{ user.email }}</div>
+                                <div class="auth-only">
+                                    <div class="px-4 py-2 mb-2 border-bottom d-sm-none">
+                                        <div class="font-weight-bold">{{ user.get_full_name }}</div>
+                                        <div class="small text-muted">{{ user.email }}</div>
+                                    </div>
+                                    <a class="dropdown-item" href="{% url 'order_history' %}"><i
+                                            class="fas fa-box mr-2"></i> My Orders</a>
+                                    <a class="dropdown-item" href="{% url 'view_returns' %}"><i
+                                            class="fas fa-undo mr-2"></i> My Returns</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger" href="{% url 'logout' %}"><i
+                                            class="fas fa-sign-out-alt mr-2"></i> Logout</a>
                                 </div>
-                                <a class="dropdown-item" href="{% url 'order_history' %}"><i
-                                        class="fas fa-box mr-2"></i> My Orders</a>
-                                <a class="dropdown-item" href="{% url 'view_returns' %}"><i
-                                        class="fas fa-undo mr-2"></i> My Returns</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="{% url 'logout' %}"><i
-                                        class="fas fa-sign-out-alt mr-2"></i> Logout</a>
-                                {% else %}
-                                <a class="dropdown-item font-weight-bold text-primary" href="{% url 'login' %}">Sign
-                                    In</a>
-                                <a class="dropdown-item" href="{% url 'signup' %}">Create Account</a>
-                                {% endif %}
+                                <div class="guest-only">
+                                    <a class="dropdown-item font-weight-bold text-primary" href="{% url 'login' %}">Sign
+                                        In</a>
+                                    <a class="dropdown-item" href="{% url 'signup' %}">Create Account</a>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Cart Widget -->
                         <a href="{% url 'cart' %}" class="cart-widget">
                             <i class="fas fa-shopping-cart"></i>
-                            <span id="cart-count" class="cart-badge" {% if cart_count==0 %}style="display:none;" {%
-                                endif %}>
-                                {{ cart_count }}
+                            <span id="cart-count" class="cart-badge cart-status-{{ count_items_in_cart|default:0 }}">
+                                {{ count_items_in_cart|default:0 }}
                             </span>
                         </a>
 
