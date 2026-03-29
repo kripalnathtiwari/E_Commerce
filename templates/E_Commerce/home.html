@@ -497,6 +497,77 @@
     .aos-animate {
         pointer-events: auto;
     }
+
+    .aos-animate {
+        pointer-events: auto;
+    }
+
+    /* FAQ Section */
+    .faq-section {
+        padding: 100px 0;
+        background: #f8faff;
+    }
+
+    .accordion .card {
+        border: none;
+        background: white;
+        border-radius: 20px !important;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .accordion .card:hover {
+        box-shadow: 0 10px 25px rgba(49, 103, 235, 0.08);
+    }
+
+    .accordion .card-header {
+        background: white;
+        border: none;
+        padding: 20px 25px;
+        cursor: pointer;
+    }
+
+    .accordion .btn-link {
+        color: var(--dark);
+        font-weight: 700;
+        font-size: 17px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
+        padding: 0;
+        letter-spacing: -0.3px;
+    }
+
+    .accordion .btn-link:hover,
+    .accordion .btn-link:focus {
+        text-decoration: none;
+        color: var(--primary);
+    }
+
+    .accordion .btn-link i {
+        font-size: 14px;
+        transition: transform 0.3s ease;
+        color: var(--primary);
+    }
+
+    .accordion .btn-link[aria-expanded="true"] i {
+        transform: rotate(180deg);
+    }
+
+    .accordion .card-body {
+        padding: 0 25px 25px;
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .section-title-wrap {
+        margin-bottom: 50px;
+    }
 </style>
 
 <!-- Hero Section -->
@@ -668,6 +739,271 @@
                     <div class="feature-icon"><i class="fas fa-smile-wink"></i></div>
                     <h4>24/7 Support</h4>
                     <p>Our experts are always here to guide you through your purchase.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        <div class="section-title-wrap text-center" data-aos="fade-up">
+            <h2 class="fw-bold h1 mb-3">Common Questions</h2>
+            <p class="text-muted">Everything you need to know about our service and delivery</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="accordion" id="faqAccordion">
+
+                    <!-- Row 1 -->
+                    <div class="row">
+                        <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
+                            <div class="card">
+                                <div class="card-header" id="headingOne">
+                                    <button class="btn btn-link" type="button" data-toggle="collapse"
+                                        data-target="#collapseOne" aria-expanded="true">
+                                        How long does delivery take?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseOne" class="collapse show" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        Standard delivery takes 24-48 hours for local orders and 3-5 business days for
+                                        pan-India shipping.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingTwo">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseTwo">
+                                        Can I track my order in real-time?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseTwo" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        Yes! Once your order is placed, you can track its live status directly from your
+                                        "Order History" dashboard.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingThree">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseThree">
+                                        What is your return policy?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseThree" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        We offer a 7-day easy return policy for all standard products, provided they are
+                                        unused and in original packaging.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingFour">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseFour">
+                                        Do you offer Cash on Delivery (COD)?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseFour" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        Yes, we support COD for most pin-codes across India to ensure a hassle-free
+                                        shopping experience.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingFive">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseFive">
+                                        How do I upload my custom design?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseFive" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        During the checkout process, you'll see a 'Design' section where you can upload
+                                        your images directly.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingSix">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseSix">
+                                        Can I cancel my order?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseSix" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        Orders can be cancelled within 2 hours of placement. After that, we begin
+                                        processing for faster delivery.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingSeven">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseSeven">
+                                        Is my personal info secure?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseSeven" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        Absolutely. We use industry-standard SSL encryption and never store your
+                                        sensitive card details.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingFifteen">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseFifteen">
+                                        Do you ship internationally?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseFifteen" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        Yes, we offer global shipping to over 50 countries. Shipping costs vary by
+                                        destination.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
+                            <div class="card">
+                                <div class="card-header" id="headingEight">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseEight">
+                                        How do I become a distributor?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseEight" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        Simply register as a 'Distributor' on our signup page and fill in your
+                                        professional details to get started.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingNine">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseNine">
+                                        What payment methods are supported?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseNine" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        We accept all major credit/debit cards, UPI, Google Pay, and Net Banking for
+                                        your convenience.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingTen">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseTen">
+                                        Can I return custom design items?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseTen" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        Custom products are unique! We only accept returns for them if there is a
+                                        manufacturing defect or damage.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingEleven">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseEleven">
+                                        Can I change address post-order?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseEleven" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        You can change your address within 1 hour of placing the order by contacting our
+                                        support team via WhatsApp.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingTwelve">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseTwelve">
+                                        Do you offer bulk discounts?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseTwelve" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        Yes! If you're a business or planning a large event, contact our sales desk for
+                                        special wholesale pricing.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingThirteen">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseThirteen">
+                                        What if I receive a damaged product?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseThirteen" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        Don't worry! Use the "Return Request" feature and upload a photo of the damage.
+                                        We'll replace it immediately.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header" id="headingFourteen">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                        data-target="#collapseFourteen">
+                                        Is there a loyalty program?
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <div id="collapseFourteen" class="collapse" data-parent="#faqAccordion">
+                                    <div class="card-body">
+                                        Yes, our regular shoppers get points on ogni purchase which can be redeemed for
+                                        massive discounts later.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
