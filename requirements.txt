@@ -12,3 +12,5 @@ requests-oauthlib
 python3-openid
 django-storages
 boto3
+PyJWT
+cryptography
