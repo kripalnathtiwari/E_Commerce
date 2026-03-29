@@ -1,0 +1,8 @@
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[phases.build]
+cmds = ["python manage.py collectstatic --no-input"]
+
+[start]
+cmd = "gunicorn E_Commerce.wsgi:application --bind 0.0.0.0:$PORT"
