@@ -1,0 +1,15 @@
+[phases.install]
+cmds = ["python -m pip install -r requirements.txt"]
+
+[phases.build]
+cmds = [
+    "mkdir -p staticfiles",
+    "python manage.py migrate --no-input",
+    "python manage.py collectstatic --no-input"
+]
+
+[start]
+cmd = "gunicorn E_Commerce.wsgi:application --bind 0.0.0.0:$PORT"
+
+[setup]
+providers = ["python"]
