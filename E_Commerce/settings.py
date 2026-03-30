@@ -196,3 +196,5 @@ LOGGING = {
         },
     },
 }
+
+WHITENOISE_MANIFEST_STRICT = False
