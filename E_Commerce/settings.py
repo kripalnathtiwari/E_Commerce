@@ -122,7 +122,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Static and Media Files
 STATIC_URL = '/static/'
 
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # Updated for Whitenoise
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Updated for Whitenoise
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     os.path.join(BASE_DIR, 'E_Commerce/static'),
