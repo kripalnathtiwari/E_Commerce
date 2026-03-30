@@ -9,5 +9,3 @@ def count_items_in_cart(request):
     return {
         'count_items_in_cart': count
     }
-
-    print("LOADED CONTEXT PROCESSOR FILE")
