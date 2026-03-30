@@ -31,9 +31,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'E_Commerce',
-    'category',
-    'accounts',
-    'store',
+    'category.apps.CategoryConfig',
+    'accounts.apps.AccountsConfig',
+    'store.apps.StoreConfig',
     'storages',
 ]
 
