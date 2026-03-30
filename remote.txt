@@ -1,0 +1,2 @@
+﻿origin	https://github.com/kripalnathtiwari/E_Commerce (fetch)
+origin	https://github.com/kripalnathtiwari/E_Commerce (push)

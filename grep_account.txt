@@ -1,0 +1,20 @@
+036d7b8 Include missing migrations
+746ba5b Fixing 500
+cb4e6bc Static file setup
+4362950 Nickspacks file
+cfae57e Account Created
+3087825 Live
+0c3e107 Live
+1663911 Live
+0337f1e Python version
+5828b0b Pyhton Version
+162ba1b Making Live
+8e82dd4 Making Live
+81ac694 Deploying Live
+3559c1f Deploying Live
+a210f99 Fixing for deploy
+7ff21c8 AWS S3 iplemented
+e1e924a AWS S3 Bucket implimented
+e7f0270 AWS S3 Bucket integreted
+0712be9 Adding Google Auth
+3759af4 Added MultiPul Colour

@@ -1,0 +1,17 @@
+commit 036d7b81817f16a82d0c4c7b637fa35e807ca891
+Author: kripalnathtiwari <145249601+kripalnathtiwari@users.noreply.github.com>
+Date:   Mon Mar 30 10:24:28 2026 +0530
+
+    Include missing migrations
+
+commit 746ba5bac8e41a6e42e8ca4871b8a317a7f8f87a
+Author: kripalnathtiwari <145249601+kripalnathtiwari@users.noreply.github.com>
+Date:   Mon Mar 30 10:06:44 2026 +0530
+
+    Fixing 500
+
+commit cb4e6bc2cb9362e40de07869f6394ad5849fad48
+Author: kripalnathtiwari <145249601+kripalnathtiwari@users.noreply.github.com>
+Date:   Mon Mar 30 09:35:51 2026 +0530
+
+    Static file setup
