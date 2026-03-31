@@ -9,4 +9,4 @@ cmds = [
 cmd = "python manage.py migrate --fake-initial --no-input && gunicorn E_Commerce.wsgi:application --bind 0.0.0.0:$PORT"
 
 [setup]
-providers = ["python"]
+providers = ["python", "node"]
