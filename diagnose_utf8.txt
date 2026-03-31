@@ -1,0 +1,16 @@
+﻿--- store_orderitem table info ---
+(0, 'id', 'INTEGER', 1, None, 1)
+(1, 'quantity', 'INTEGER', 1, None, 0)
+(2, 'price', 'INTEGER', 1, None, 0)
+(3, 'order_id', 'bigint', 1, None, 0)
+(4, 'product_id', 'bigint', 1, None, 0)
+(5, 'distributor_id', 'bigint', 0, None, 0)
+(6, 'status', 'varchar(20)', 1, None, 0)
+(7, 'updated_at', 'datetime', 1, None, 0)
+
+--- last applied migrations for store ---
+('0012_orderitem_status_orderitem_updated_at',)
+('0011_alter_reviewrating_image',)
+('0010_reviewrating_image',)
+('0009_reviewrating',)
+('0008_alter_orderitem_variations',)
